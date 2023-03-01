@@ -38,6 +38,7 @@ open class Sprite : Renderable2D() {
 
     override fun render(batch: Batch, camera: Camera, shapeRenderer: ShapeRenderer) {
         slice?.let {
+            batch.setBlendFunction(blendMode)
             batch.draw(
                 it,
                 x + localOffsetX,

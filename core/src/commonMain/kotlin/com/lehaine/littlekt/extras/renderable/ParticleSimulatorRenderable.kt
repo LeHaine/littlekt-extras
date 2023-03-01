@@ -29,6 +29,9 @@ class ParticleSimulatorRenderable : Renderable2D() {
 
     override fun render(batch: Batch, camera: Camera, shapeRenderer: ShapeRenderer) {
         viewBounds.calculateViewBounds(camera)
+        if(simulator.particles.isNotEmpty()) {
+            batch.setBlendFunction(blendMode)
+        }
         simulator.particles.fastForEach {
             if (!it.visible || !it.alive) return@fastForEach
 

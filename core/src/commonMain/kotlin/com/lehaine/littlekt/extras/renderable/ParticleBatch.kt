@@ -33,6 +33,9 @@ class ParticleBatch : Renderable2D() {
 
     override fun render(batch: Batch, camera: Camera, shapeRenderer: ShapeRenderer) {
         viewBounds.calculateViewBounds(camera)
+        if (particles.isNotEmpty()) {
+            batch.setBlendFunction(blendMode)
+        }
         particles.fastForEach {
             if (!it.visible || !it.alive) return@fastForEach
 

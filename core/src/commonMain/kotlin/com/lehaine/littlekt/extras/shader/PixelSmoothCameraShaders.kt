@@ -12,8 +12,8 @@ class PixelSmoothVertexShader : VertexShaderModel() {
     val aColor = ShaderParameter.Attribute("a_color")
     val aTexCoord0 = ShaderParameter.Attribute("a_texCoord0")
 
-    override val parameters: MutableList<ShaderParameter> =
-        mutableListOf(uProjTrans, uTextureSizes, uSampleProperties, aPosition, aColor, aTexCoord0)
+    override val parameters: LinkedHashSet<ShaderParameter> =
+        linkedSetOf(uProjTrans, uTextureSizes, uSampleProperties, aPosition, aColor, aTexCoord0)
 
     // language=GLSL
     override var source: String = """
@@ -47,7 +47,7 @@ class PixelSmoothFragmentShader : FragmentShaderModel() {
     val uTextureSizes = ShaderParameter.UniformVec4("u_textureSizes")
     val uSampleProperties = ShaderParameter.UniformVec4("u_sampleProperties")
 
-    override val parameters: MutableList<ShaderParameter> = mutableListOf(uTexture, uTextureSizes, uSampleProperties)
+    override val parameters: LinkedHashSet<ShaderParameter> = linkedSetOf(uTexture, uTextureSizes, uSampleProperties)
 
     // language=GLSL
     override var source: String = """
