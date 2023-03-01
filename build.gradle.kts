@@ -1,5 +1,3 @@
-val runeVersion: String by project
-
 buildscript {
     repositories {
         maven(url = "https://s01.oss.sonatype.org/content/repositories/snapshots/")
@@ -21,11 +19,8 @@ allprojects {
         mavenLocal()
     }
 
-    group = "com.lehaine.rune"
-    version = runeVersion
-
-    val isReleaseVersion = !runeVersion.endsWith("SNAPSHOT")
-    extra["isReleaseVersion"] = isReleaseVersion
+    group = "com.lehaine.littlekt.extras"
+    version = "0.0.1"
 }
 
 plugins.withType<org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin> {

@@ -23,7 +23,7 @@ abstract class Renderable2D {
      */
     abstract val renderHeight: Float
 
-    val blendMode = BlendMode.NonPreMultiplied
+    var blendMode: BlendMode = BlendMode.NonPreMultiplied
 
     var ppu: Float = 1f
     val ppuInv: Float get() = 1f / ppu
