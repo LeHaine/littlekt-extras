@@ -65,6 +65,8 @@ open class FixedGame<SceneType : FixedScene>(context: Context, firstScene: Scene
 
         context.onRender {
             with(currentScene) {
+                fixedProgressionRatio = this@FixedGame.fixedProgressionRatio
+                tmod = this@FixedGame.tmod
                 context.render(it)
             }
         }

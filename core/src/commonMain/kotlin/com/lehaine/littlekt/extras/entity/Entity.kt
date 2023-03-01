@@ -206,17 +206,17 @@ open class Entity(val gridCellSize: Float) {
         updateGridPosition()
     }
 
-    fun preUpdate(dt: Duration) {
+    open fun preUpdate(dt: Duration) {
         cd.update(dt)
     }
 
-    fun fixedUpdate() {
+    open fun fixedUpdate() {
         updateGridPosition()
     }
 
     open fun update(dt: Duration) = Unit
 
-    fun postUpdate(dt: Duration) {
+    open fun postUpdate(dt: Duration) {
         ignorePosChanged = true
         sprite.x = x
         sprite.y = y

@@ -9,5 +9,8 @@ import com.lehaine.littlekt.Scene
  */
 abstract class FixedScene(context: Context) : Scene(context) {
 
+    var fixedProgressionRatio: Float = 1f
+    var tmod: Float = 1f
+
     open fun Context.fixedUpdate() = Unit
 }
