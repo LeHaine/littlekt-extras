@@ -1,7 +1,6 @@
 package com.lehaine.littlekt.extras
 
 import com.lehaine.littlekt.Context
-import com.lehaine.littlekt.ContextListener
 import com.lehaine.littlekt.createLittleKtApp
 import com.lehaine.littlekt.extras.entity.Entity
 import com.lehaine.littlekt.extras.entity.toPixelPosition
@@ -18,15 +17,13 @@ import com.lehaine.littlekt.input.Input
 import com.lehaine.littlekt.input.Key
 import com.lehaine.littlekt.math.geom.degrees
 import com.lehaine.littlekt.util.fastForEach
-import com.lehaine.littlekt.util.milliseconds
-import com.lehaine.littlekt.util.seconds
 import kotlin.time.Duration
 
 /**
  * @author Colton Daily
  * @date 11/8/2022
  */
-class CollisionTest(context: Context) : ContextListener(context) {
+class CollisionTest(context: Context) : FixedTimeContextListener(context) {
 
     val dummies = mutableListOf<BitsEntity>()
     val player = PlayerEntity()
@@ -97,15 +94,6 @@ class CollisionTest(context: Context) : ContextListener(context) {
         }
     }
 
-    var fixedProgressionRatio: Float = 1f
-    var fixedTimesPerSecond: Int = 30
-        set(value) {
-            field = value
-            time = (1f / value).seconds
-        }
-    private var time = (1f / fixedTimesPerSecond).seconds
-    private var accum: Duration = Duration.ZERO
-
     override suspend fun Context.start() {
         dummies += BitsEntity().apply {
             width = 384f
@@ -134,17 +122,14 @@ class CollisionTest(context: Context) : ContextListener(context) {
             camera.ortho(width, height)
         }
 
+        onFixedUpdate {
+            player.fixedUpdate()
+            dummies.fastForEach { it.fixedUpdate() }
+        }
+
         onRender { dt ->
             gl.clearColor(0.1f, 0.1f, 0.1f, 1f)
             gl.clear(ClearBufferMask.COLOR_BUFFER_BIT)
-
-            accum += dt
-            while (accum >= time) {
-                accum -= time
-                player.fixedUpdate()
-                dummies.fastForEach { it.fixedUpdate() }
-            }
-            fixedProgressionRatio = accum.milliseconds / time.milliseconds
 
             player.preUpdate(dt)
             dummies.fastForEach { it.preUpdate(dt) }
