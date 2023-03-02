@@ -2,7 +2,10 @@ package com.lehaine.littlekt.extras
 
 import com.lehaine.littlekt.Context
 import com.lehaine.littlekt.Scene
+import com.lehaine.littlekt.async.KtScope
 import com.lehaine.littlekt.log.Logger
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlin.reflect.KClass
 
 /**
@@ -48,7 +51,11 @@ open class FixedGame<SceneType : FixedScene>(context: Context, firstScene: Scene
         @Suppress("UNCHECKED_CAST")
         get() = currentScene as SceneType
 
-    private var created = false
+    private var initialize = firstScene != null
+
+    private var nextScene: SceneType? = null
+    private var initialSceneJob: Job? = null
+    private var sceneChangeJob: Job? = null
 
     init {
         context.onResize { width, height ->
@@ -64,7 +71,37 @@ open class FixedGame<SceneType : FixedScene>(context: Context, firstScene: Scene
         }
 
         context.onRender {
-            with(currentScene) {
+            if (initialize && initialSceneJob?.isActive != true) {
+                initialSceneJob = KtScope.launch {
+                    sceneChangeJob?.join()
+
+                    currentScene.run {
+                        context.resize(context.graphics.width, context.graphics.height)
+                        context.show()
+                    }
+
+                    initialize = false
+                }
+            }
+
+            nextScene?.let { _nextScene ->
+                if (sceneChangeJob?.isActive != true) {
+                    sceneChangeJob = KtScope.launch {
+                        initialSceneJob?.join()
+                        currentScene.run {
+                            context.hide()
+                        }
+                        currentScene = _nextScene
+                        nextScene = null
+                        currentScene.run {
+                            context.resize(context.graphics.width, context.graphics.height)
+                            context.show()
+                        }
+                    }
+                }
+            }
+
+            currentScene.run {
                 fixedProgressionRatio = this@FixedGame.fixedProgressionRatio
                 tmod = this@FixedGame.tmod
                 context.render(it)
@@ -74,7 +111,7 @@ open class FixedGame<SceneType : FixedScene>(context: Context, firstScene: Scene
         context.onDispose {
             scenes.values.forEach {
                 try {
-                    with(it) {
+                    it.run {
                         context.dispose()
                     }
                 } catch (exception: Throwable) {
@@ -97,7 +134,7 @@ open class FixedGame<SceneType : FixedScene>(context: Context, firstScene: Scene
      * @see setScene
      * @see removeScene
      */
-    suspend inline fun <reified Type : SceneType> addScene(scene: Type) = addScene(Type::class, scene)
+    inline fun <reified Type : SceneType> addScene(scene: Type) = addScene(Type::class, scene)
 
     /**
      * Registers an instance of [Scene].
@@ -111,7 +148,7 @@ open class FixedGame<SceneType : FixedScene>(context: Context, firstScene: Scene
      * @see setScene
      * @see removeScene
      */
-    open suspend fun <Type : SceneType> addScene(type: KClass<Type>, scene: Type) {
+    open fun <Type : SceneType> addScene(type: KClass<Type>, scene: Type) {
         !scenes.containsKey(type) || error("Scene already registered to type: $type")
         scenes[type] = scene
     }
@@ -124,7 +161,7 @@ open class FixedGame<SceneType : FixedScene>(context: Context, firstScene: Scene
      * @see addScene
      * @see shownScene
      */
-    suspend inline fun <reified Type : SceneType> setScene() = setScene(Type::class)
+    inline fun <reified Type : SceneType> setScene() = setScene(Type::class)
 
     /**
      * Replaces the current scene with the registered scene instance of the passed type.
@@ -133,15 +170,8 @@ open class FixedGame<SceneType : FixedScene>(context: Context, firstScene: Scene
      * @see addScene
      * @see shownScene
      */
-    open suspend fun <Type : SceneType> setScene(type: KClass<Type>) {
-        currentScene.run {
-            context.hide()
-        }
-        currentScene = getScene(type)
-        currentScene.run {
-            context.resize(context.graphics.width, context.graphics.height)
-            context.show()
-        }
+    open fun <Type : SceneType> setScene(type: KClass<Type>) {
+        nextScene = getScene(type)
     }
 
     /**
