@@ -227,6 +227,7 @@ open class Entity(val gridCellSize: Float) {
         _stretchY += (1 - _stretchY) * min(1f, restoreSpeed * dt.seconds)
         sprite.scaleX = entityScaleX
         sprite.scaleY = entityScaleY
+        sprite.rotation = rotation
     }
 
     open fun render(batch: Batch, camera: Camera, shapeRenderer: ShapeRenderer) {
