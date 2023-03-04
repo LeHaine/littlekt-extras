@@ -59,6 +59,7 @@ class ParticleBatch : Renderable2D() {
                 )
             }
         }
+        batch.setToPreviousBlendFunction()
     }
 
     companion object {
