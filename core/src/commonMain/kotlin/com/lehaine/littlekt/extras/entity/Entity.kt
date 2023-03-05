@@ -187,6 +187,8 @@ open class Entity(val gridCellSize: Float) {
 
     val cooldown = Cooldown()
 
+    var destroyed: Boolean = false
+
 //    val mouseX get() = (canvas as? PixelSmoothFrameBuffer)?.mouseX ?: 0f
 //    val mouseY get() = (canvas as? PixelSmoothFrameBuffer)?.mouseY ?: 0f
 //    val angleToMouse: Angle
@@ -203,6 +205,7 @@ open class Entity(val gridCellSize: Float) {
         anchorX = 0.5f
         anchorY = 1f
 
+        @Suppress("LeakingThis")
         updateGridPosition()
     }
 
@@ -214,7 +217,9 @@ open class Entity(val gridCellSize: Float) {
         updateGridPosition()
     }
 
-    open fun update(dt: Duration) = Unit
+    open fun update(dt: Duration) {
+        sprite.update(dt)
+    }
 
     open fun postUpdate(dt: Duration) {
         ignorePosChanged = true
@@ -406,6 +411,10 @@ open class Entity(val gridCellSize: Float) {
 
     open fun checkXCollision() = Unit
     open fun checkYCollision() = Unit
+
+    open fun destroy() {
+        destroyed = true
+    }
 
     companion object {
         private val tempVec2f = MutableVec2f()
