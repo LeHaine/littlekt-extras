@@ -23,13 +23,14 @@ class PixelSmoothFrameBuffer private constructor(
     var ppu: Float = 1f
     val ppuInv: Float get() = 1f / ppu
 
-    fun getWorldCoords(x: Int, y: Int, context: Context, camera: Camera, out: MutableVec2f) {
+    fun getWorldCoords(x: Int, y: Int, context: Context, camera: Camera, out: MutableVec2f): MutableVec2f {
         out.x = (pxWidth / 100f) * ((100f / context.graphics.width) * x)
         out.y = (pxHeight / 100f) * ((100f / context.graphics.height) * y)
         out.x *= ppuInv
         out.y *= ppuInv
         out.x = out.x - width * ppuInv * 0.5f + camera.position.x
         out.y = out.y - height * ppuInv * 0.5f + camera.position.y
+        return out
     }
 
     companion object {

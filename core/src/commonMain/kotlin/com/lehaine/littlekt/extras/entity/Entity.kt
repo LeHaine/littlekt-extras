@@ -189,18 +189,6 @@ open class Entity(val gridCellSize: Float) {
 
     var destroyed: Boolean = false
 
-//    val mouseX get() = (canvas as? PixelSmoothFrameBuffer)?.mouseX ?: 0f
-//    val mouseY get() = (canvas as? PixelSmoothFrameBuffer)?.mouseY ?: 0f
-//    val angleToMouse: Angle
-//        get() = atan2(
-//            mouseY - centerY,
-//            mouseX - centerX
-//        ).radians
-//
-//    val dirToMouse: Int get() = dirTo(mouseX)
-
-    private var ignorePosChanged = false
-
     init {
         anchorX = 0.5f
         anchorY = 1f
@@ -222,10 +210,8 @@ open class Entity(val gridCellSize: Float) {
     }
 
     open fun postUpdate(dt: Duration) {
-        ignorePosChanged = true
         sprite.x = x
         sprite.y = y
-        ignorePosChanged = false
         entityScaleX = scaleX * dir * stretchX
         entityScaleY = scaleY * stretchY
         _stretchX += (1 - _stretchX) * min(1f, restoreSpeed * dt.seconds)
