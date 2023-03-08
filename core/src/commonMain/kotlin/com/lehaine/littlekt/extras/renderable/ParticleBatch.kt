@@ -33,7 +33,8 @@ class ParticleBatch : Renderable2D() {
 
     override fun render(batch: Batch, camera: Camera, shapeRenderer: ShapeRenderer) {
         viewBounds.calculateViewBounds(camera)
-        if (particles.isNotEmpty()) {
+        val blendMode = blendMode
+        if (particles.isNotEmpty() && blendMode != null) {
             batch.setBlendFunction(blendMode)
         }
         particles.fastForEach {
@@ -59,7 +60,7 @@ class ParticleBatch : Renderable2D() {
                 )
             }
         }
-        batch.setToPreviousBlendFunction()
+        if (blendMode != null) batch.setToPreviousBlendFunction()
     }
 
     companion object {

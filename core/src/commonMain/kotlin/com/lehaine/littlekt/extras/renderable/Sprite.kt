@@ -5,12 +5,36 @@ import com.lehaine.littlekt.graphics.g2d.Batch
 import com.lehaine.littlekt.graphics.g2d.TextureSlice
 import com.lehaine.littlekt.graphics.g2d.shape.ShapeRenderer
 import com.lehaine.littlekt.graphics.toFloatBits
+import com.lehaine.littlekt.math.Rect
 
 /**
  * @author Colton Daily
  * @date 3/11/2022
  */
 open class Sprite : Renderable2D() {
+
+    override val renderBounds: Rect
+        get() {
+            if (boundsDirty) {
+                val origWidth =
+                    (if (slice?.rotated == true) slice?.originalHeight?.toFloat() else slice?.originalWidth?.toFloat())
+                        ?: renderWidth
+                val origHeight =
+                    (if (slice?.rotated == true) slice?.originalWidth?.toFloat() else slice?.originalHeight?.toFloat())
+                        ?: renderHeight
+                calculateBounds(
+                    position = position,
+                    (origWidth - (slice?.offsetX ?: 0)) * anchorX,
+                    (origHeight - (slice?.offsetY ?: 0)) * anchorY,
+                    scale = scale,
+                    rotation = rotation,
+                    width = if (slice?.rotated == true) renderHeight else renderWidth,
+                    height = if (slice?.rotated == true) renderWidth else renderHeight
+                )
+                boundsDirty = false
+            }
+            return _bounds
+        }
 
     override val renderWidth: Float
         get() = if (overrideWidth) overriddenWidth else slice?.width?.toFloat() ?: 0f
@@ -37,14 +61,16 @@ open class Sprite : Renderable2D() {
     var slice: TextureSlice? = null
 
     override fun render(batch: Batch, camera: Camera, shapeRenderer: ShapeRenderer) {
-        slice?.let {
-            batch.setBlendFunction(blendMode)
+        slice?.let { slice ->
+            blendMode?.let {
+                batch.setBlendFunction(it)
+            }
             batch.draw(
-                it,
+                slice,
                 x + localOffsetX,
                 y + localOffsetY,
-                anchorX * it.originalWidth,
-                anchorY * it.originalHeight,
+                anchorX * slice.originalWidth,
+                anchorY * slice.originalHeight,
                 width = renderWidth,
                 height = renderHeight,
                 scaleX = scaleX * ppuInv,

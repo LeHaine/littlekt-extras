@@ -225,6 +225,10 @@ open class Entity(val gridCellSize: Float) {
         sprite.render(batch, camera, shapeRenderer)
     }
 
+    open fun debugRender(batch: Batch, camera: Camera, shapeRenderer: ShapeRenderer) {
+        sprite.debugRender(batch, camera, shapeRenderer)
+    }
+
     private fun performSAT(poly2: List<Vec2f>): Boolean {
         val edges = tempVecList2
         var i = 0

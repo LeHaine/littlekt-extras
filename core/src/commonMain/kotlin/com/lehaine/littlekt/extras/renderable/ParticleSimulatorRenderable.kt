@@ -1,19 +1,14 @@
 package com.lehaine.littlekt.extras.renderable
 
-import com.lehaine.littlekt.graph.node.Node
-import com.lehaine.littlekt.graph.node.addTo
-import com.lehaine.littlekt.graph.node.annotation.SceneGraphDslMarker
-import com.lehaine.littlekt.graphics.*
+import com.lehaine.littlekt.graphics.Camera
 import com.lehaine.littlekt.graphics.g2d.Batch
 import com.lehaine.littlekt.graphics.g2d.ParticleSimulator
 import com.lehaine.littlekt.graphics.g2d.TextureSlice
 import com.lehaine.littlekt.graphics.g2d.shape.ShapeRenderer
+import com.lehaine.littlekt.graphics.toFloatBits
 import com.lehaine.littlekt.math.Rect
 import com.lehaine.littlekt.util.calculateViewBounds
 import com.lehaine.littlekt.util.fastForEach
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
 
 
 class ParticleSimulatorRenderable : Renderable2D() {
@@ -29,7 +24,8 @@ class ParticleSimulatorRenderable : Renderable2D() {
 
     override fun render(batch: Batch, camera: Camera, shapeRenderer: ShapeRenderer) {
         viewBounds.calculateViewBounds(camera)
-        if(simulator.particles.isNotEmpty()) {
+        val blendMode = blendMode
+        if (simulator.particles.isNotEmpty() && blendMode != null) {
             batch.setBlendFunction(blendMode)
         }
         simulator.particles.fastForEach {

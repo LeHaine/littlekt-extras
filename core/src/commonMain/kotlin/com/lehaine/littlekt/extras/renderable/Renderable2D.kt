@@ -4,12 +4,14 @@ import com.lehaine.littlekt.graphics.Camera
 import com.lehaine.littlekt.graphics.Color
 import com.lehaine.littlekt.graphics.g2d.Batch
 import com.lehaine.littlekt.graphics.g2d.shape.ShapeRenderer
+import com.lehaine.littlekt.graphics.toFloatBits
 import com.lehaine.littlekt.graphics.util.BlendMode
 import com.lehaine.littlekt.math.Mat3
 import com.lehaine.littlekt.math.MutableVec2f
 import com.lehaine.littlekt.math.Rect
 import com.lehaine.littlekt.math.Vec2f
 import com.lehaine.littlekt.math.geom.Angle
+import com.lehaine.littlekt.math.geom.normalized
 
 abstract class Renderable2D {
 
@@ -23,50 +25,67 @@ abstract class Renderable2D {
      */
     abstract val renderHeight: Float
 
-    var blendMode: BlendMode = BlendMode.NonPreMultiplied
+    var blendMode: BlendMode? = BlendMode.NonPreMultiplied
 
     var ppu: Float = 1f
     val ppuInv: Float get() = 1f / ppu
 
     var position: MutableVec2f = MutableVec2f()
+        set(value) {
+            field = value
+            boundsDirty = true
+        }
     var x: Float
         get() = position.x
         set(value) {
+            boundsDirty = true
             position.x = value
         }
     var y: Float
         get() = position.y
         set(value) {
+            boundsDirty = true
             position.y = value
         }
 
     var scale: MutableVec2f = MutableVec2f(1f, 1f)
+        set(value) {
+            field = value
+            boundsDirty = true
+        }
     var scaleX: Float
         get() = scale.x
         set(value) {
+            boundsDirty = true
             scale.x = value
         }
     var scaleY: Float
         get() = scale.y
         set(value) {
+            boundsDirty = true
             scale.y = value
         }
 
     var rotation: Angle = Angle.ZERO
+        set(value) {
+            field = value
+            boundsDirty = true
+        }
 
     /**
      * The AABB that wraps this [Renderable2D]. Used for camera culling.
      */
-    val renderBounds: Rect
+    open val renderBounds: Rect
         get() {
             if (boundsDirty) {
                 calculateBounds(
                     position = position,
-                    anchor = anchor,
+                    renderWidth * anchorX,
+                    renderHeight * anchorY,
                     scale = scale,
                     rotation = rotation,
-                    width = _bounds.width,
-                    height = _bounds.height
+                    width = renderWidth,
+                    height = renderHeight
                 )
                 boundsDirty = false
             }
@@ -146,20 +165,23 @@ abstract class Renderable2D {
 
     open fun render(batch: Batch, camera: Camera, shapeRenderer: ShapeRenderer) = Unit
 
+    open fun debugRender(batch: Batch, camera: Camera, shapeRenderer: ShapeRenderer) {
+        shapeRenderer.rectangle(renderBounds, color = Color.YELLOW.toFloatBits())
+    }
+
     protected fun calculateBounds(
         position: Vec2f,
-        anchor: Vec2f,
+        originX: Float,
+        originY: Float,
         scale: Vec2f,
         rotation: Angle,
         width: Float,
         height: Float
     ) {
-        val originX = anchor.x * width
-        val originY = anchor.y * height
-        if (rotation == Angle.ZERO) {
+        if (rotation.normalized == Angle.ZERO) {
             _bounds.let {
-                it.x = position.x + originX - (width * anchorX * scale.x)
-                it.y = position.y + originY - (height * anchorY * scale.y)
+                it.x = position.x - originX * scale.x + (width * (1f - anchorX) * scale.x)
+                it.y = position.y - originY * scale.y + (height * (1f - anchorY) * scale.y)
                 it.width = width * scale.x
                 it.height = height * scale.y
             }
@@ -172,7 +194,7 @@ abstract class Renderable2D {
             transMat.mulLeft(tempMat)
             tempMat.setToRotation(rotation) // rotate
             transMat.mulLeft(tempMat)
-            tempMat.setToTranslate(worldPosX + originX, worldPosY + originY) // translate back
+            tempMat.setToTranslate(worldPosX, worldPosY) // translate back
             transMat.mulLeft(tempMat)
 
             // get four corners
