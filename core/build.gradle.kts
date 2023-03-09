@@ -41,8 +41,9 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(libs.littlekt.core)
+                implementation(libs.littlekt.core)
                 implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.fleks)
             }
         }
         val commonTest by getting {

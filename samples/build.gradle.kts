@@ -77,7 +77,9 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(project(":core"))
+                implementation(libs.littlekt.core)
                 implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.fleks)
             }
         }
         val commonTest by getting {

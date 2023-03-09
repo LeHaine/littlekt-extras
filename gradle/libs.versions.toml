@@ -3,6 +3,7 @@ plugin-android = "7.2.2"
 plugin-kotlin = "1.8.10"
 
 kotlinx-coroutines = "1.6.4"
+fleks = "2.3"
 
 littlekt = "0.7.0.a315f96-SNAPSHOT"
 
@@ -12,6 +13,7 @@ plugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.
 
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 littlekt-core = { module = "com.lehaine.littlekt:core", version.ref = "littlekt" }
+fleks = { module = "io.github.quillraven.fleks:Fleks", version.ref = "fleks" }
 
 [bundles]
 plugins = ["plugin-android", "plugin-kotlin"]
