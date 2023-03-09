@@ -28,8 +28,8 @@ open class Sprite : Renderable2D() {
                     (origHeight - (slice?.offsetY ?: 0)) * anchorY,
                     scale = scale,
                     rotation = rotation,
-                    width = if (slice?.rotated == true) renderHeight else renderWidth,
-                    height = if (slice?.rotated == true) renderWidth else renderHeight
+                    width = (if (slice?.rotated == true) renderHeight else renderWidth) + (slice?.offsetX ?: 0),
+                    height = (if (slice?.rotated == true) renderWidth else renderHeight) + (slice?.offsetY ?: 0)
                 )
                 boundsDirty = false
             }

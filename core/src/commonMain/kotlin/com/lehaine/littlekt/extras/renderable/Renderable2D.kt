@@ -180,8 +180,8 @@ abstract class Renderable2D {
     ) {
         if (rotation.normalized == Angle.ZERO) {
             _bounds.let {
-                it.x = position.x - originX * scale.x + (width * (1f - anchorX) * scale.x)
-                it.y = position.y - originY * scale.y + (height * (1f - anchorY) * scale.y)
+                it.x = position.x - originX * scale.x
+                it.y = position.y - originY * scale.y
                 it.width = width * scale.x
                 it.height = height * scale.y
             }
