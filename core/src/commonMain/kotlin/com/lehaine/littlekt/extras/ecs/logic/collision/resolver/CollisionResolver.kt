@@ -1,6 +1,6 @@
-package com.lehaine.littlekt.extras.ecs.logic.collision.reactor
+package com.lehaine.littlekt.extras.ecs.logic.collision.resolver
 
-import com.lehaine.littlekt.extras.ecs.component.CollisionComponent
+import com.lehaine.littlekt.extras.ecs.component.GridCollisionComponent
 import com.lehaine.littlekt.extras.ecs.component.GridCollisionResultComponent
 import com.lehaine.littlekt.extras.ecs.component.GridComponent
 import com.lehaine.littlekt.extras.ecs.component.MoveComponent
@@ -9,19 +9,19 @@ import com.lehaine.littlekt.extras.ecs.component.MoveComponent
  * @author Colton Daily
  * @date 3/10/2023
  */
-open class CollisionReactor {
+abstract class CollisionResolver {
 
-    open fun reactXCollision(
+    open fun resolveXCollision(
         grid: GridComponent,
         move: MoveComponent,
-        collision: CollisionComponent,
+        collision: GridCollisionComponent,
         collisionResult: GridCollisionResultComponent
     ) = Unit
 
-    open fun reactYCollision(
+    open fun resolveYCollision(
         grid: GridComponent,
         move: MoveComponent,
-        collision: CollisionComponent,
+        collision: GridCollisionComponent,
         collisionResult: GridCollisionResultComponent
     ) = Unit
 }

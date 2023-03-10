@@ -5,8 +5,8 @@ import com.lehaine.littlekt.Context
 import com.lehaine.littlekt.ContextListener
 import com.lehaine.littlekt.createLittleKtApp
 import com.lehaine.littlekt.extras.ecs.component.*
-import com.lehaine.littlekt.extras.ecs.logic.collision.checker.CollisionChecker
-import com.lehaine.littlekt.extras.ecs.logic.collision.reactor.CollisionReactor
+import com.lehaine.littlekt.extras.ecs.logic.collision.reactor.CollisionChecker
+import com.lehaine.littlekt.extras.ecs.logic.collision.resolver.CollisionResolver
 import com.lehaine.littlekt.extras.ecs.system.*
 import com.lehaine.littlekt.file.vfs.readTexture
 import com.lehaine.littlekt.graphics.Camera
@@ -42,8 +42,8 @@ class ECSTest(context: Context) : ContextListener(context) {
 
         val world = world {
             systems {
-                add(GridMoveSystem(SimpleCollisionChecker(5, 5), gridCollisionPool))
-                add(GridCollisionResultReactorSystem(SimpleCollisionReactor(5, 5)))
+                add(GridMoveSystem(gridCollisionPool))
+                add(GridCollisionResolverSystem())
                 add(GridCollisionCleanupSystem(gridCollisionPool))
                 add(PlayerMoveSystem())
 
@@ -58,7 +58,8 @@ class ECSTest(context: Context) : ContextListener(context) {
             it += SpriteComponent(heroIdle)
             it += RenderBoundsComponent()
             it += GridComponent(gridCellSize)
-            it += CollisionComponent()
+            it += GridCollisionComponent(SimpleCollisionChecker(5, 5))
+            it += GridCollisionResolverComponent(SimpleCollisionResolver(5, 5))
             it += MoveComponent(frictionX = 0.82f, frictionY = 0.82f)
             it += PlayerInputComponent()
         }
@@ -84,32 +85,52 @@ class ECSTest(context: Context) : ContextListener(context) {
 }
 
 private class SimpleCollisionChecker(val gridWidth: Int, val gridHeight: Int) : CollisionChecker() {
-    override fun checkXCollision(grid: GridComponent, move: MoveComponent, collision: CollisionComponent): Int {
-        if (grid.cx - 1 < 0 && grid.xr <= 0.3f) {
+    override fun checkXCollision(
+        cx: Int,
+        cy: Int,
+        xr: Float,
+        yr: Float,
+        velocityX: Float,
+        velocityY: Float,
+        width: Float,
+        height: Float,
+        cellSize: Float
+    ): Int {
+        if (cx - 1 < 0 && xr <= 0.3f) {
             return -1
         }
-        if (grid.cx + 1 > gridWidth && grid.xr >= 0.7f) {
+        if (cx + 1 > gridWidth && xr >= 0.7f) {
             return 1
         }
         return 0
     }
 
-    override fun checkYCollision(grid: GridComponent, move: MoveComponent, collision: CollisionComponent): Int {
-        if (grid.cy - 1 < 0 && grid.yr <= 0.3f) {
+    override fun checkYCollision(
+        cx: Int,
+        cy: Int,
+        xr: Float,
+        yr: Float,
+        velocityX: Float,
+        velocityY: Float,
+        width: Float,
+        height: Float,
+        cellSize: Float
+    ): Int {
+        if (cy - 1 < 0 && yr <= 0.3f) {
             return -1
         }
-        if (grid.cy + 1 > gridHeight && grid.yr >= 0.7f) {
+        if (cy + 1 > gridHeight && yr >= 0.7f) {
             return 1
         }
         return 0
     }
 }
 
-private class SimpleCollisionReactor(val gridWidth: Int, val gridHeight: Int) : CollisionReactor() {
-    override fun reactXCollision(
+private class SimpleCollisionResolver(val gridWidth: Int, val gridHeight: Int) : CollisionResolver() {
+    override fun resolveXCollision(
         grid: GridComponent,
         move: MoveComponent,
-        collision: CollisionComponent,
+        collision: GridCollisionComponent,
         collisionResult: GridCollisionResultComponent
     ) {
         if (collisionResult.dir == -1) {
@@ -122,10 +143,10 @@ private class SimpleCollisionReactor(val gridWidth: Int, val gridHeight: Int) : 
         }
     }
 
-    override fun reactYCollision(
+    override fun resolveYCollision(
         grid: GridComponent,
         move: MoveComponent,
-        collision: CollisionComponent,
+        collision: GridCollisionComponent,
         collisionResult: GridCollisionResultComponent
     ) {
         if (collisionResult.dir == -1) {
