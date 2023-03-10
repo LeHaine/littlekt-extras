@@ -1,4 +1,4 @@
-package com.lehaine.littlekt.extras.ecs.logic.collision.reactor
+package com.lehaine.littlekt.extras.ecs.logic.collision.checker
 
 /**
  * @author Colton Daily

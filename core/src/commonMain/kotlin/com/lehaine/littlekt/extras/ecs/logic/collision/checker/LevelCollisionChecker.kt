@@ -1,4 +1,4 @@
-package com.lehaine.littlekt.extras.ecs.logic.collision.reactor
+package com.lehaine.littlekt.extras.ecs.logic.collision.checker
 
 import com.lehaine.littlekt.extras.GameLevel
 import kotlin.math.floor

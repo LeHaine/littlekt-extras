@@ -2,7 +2,7 @@ package com.lehaine.littlekt.extras.ecs.component
 
 import com.github.quillraven.fleks.Component
 import com.github.quillraven.fleks.ComponentType
-import com.lehaine.littlekt.extras.ecs.logic.collision.reactor.CollisionChecker
+import com.lehaine.littlekt.extras.ecs.logic.collision.checker.CollisionChecker
 
 /**
  * @author Colton Daily

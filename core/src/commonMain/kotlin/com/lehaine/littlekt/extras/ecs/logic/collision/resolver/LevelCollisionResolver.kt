@@ -4,7 +4,7 @@ import com.lehaine.littlekt.extras.ecs.component.GridCollisionComponent
 import com.lehaine.littlekt.extras.ecs.component.GridCollisionResultComponent
 import com.lehaine.littlekt.extras.ecs.component.GridComponent
 import com.lehaine.littlekt.extras.ecs.component.MoveComponent
-import com.lehaine.littlekt.extras.ecs.logic.collision.reactor.LevelCollisionChecker
+import com.lehaine.littlekt.extras.ecs.logic.collision.checker.LevelCollisionChecker
 import kotlin.math.floor
 
 /**

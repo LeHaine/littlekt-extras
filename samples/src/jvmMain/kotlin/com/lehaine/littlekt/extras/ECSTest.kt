@@ -5,7 +5,7 @@ import com.lehaine.littlekt.Context
 import com.lehaine.littlekt.ContextListener
 import com.lehaine.littlekt.createLittleKtApp
 import com.lehaine.littlekt.extras.ecs.component.*
-import com.lehaine.littlekt.extras.ecs.logic.collision.reactor.CollisionChecker
+import com.lehaine.littlekt.extras.ecs.logic.collision.checker.CollisionChecker
 import com.lehaine.littlekt.extras.ecs.logic.collision.resolver.CollisionResolver
 import com.lehaine.littlekt.extras.ecs.system.*
 import com.lehaine.littlekt.file.vfs.readTexture
