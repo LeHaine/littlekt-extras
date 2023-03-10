@@ -16,7 +16,7 @@ import com.lehaine.littlekt.math.geom.normalized
  * @author Colton Daily
  * @date 3/9/2023
  */
-class RenderBoundsCalculationSystem :
+class SpriteRenderBoundsCalculationSystem :
     IteratingSystem(family { all(GridComponent, SpriteComponent, RenderBoundsComponent) }) {
 
     private val _bounds = Rect()

@@ -50,7 +50,7 @@ class ECSTest(context: Context) : ContextListener(context) {
                 add(PlayerInputSystem(context.input))
 
                 add(AnimationSystem())
-                add(RenderBoundsCalculationSystem())
+                add(SpriteRenderBoundsCalculationSystem())
                 add(RenderSystem(this@start, batch, viewport.camera, viewport))
             }
         }
