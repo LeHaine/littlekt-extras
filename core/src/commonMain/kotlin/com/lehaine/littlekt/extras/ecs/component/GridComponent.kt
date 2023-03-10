@@ -22,7 +22,6 @@ class GridComponent(var gridCellSize: Float, var width: Float = gridCellSize, va
     var yr: Float = 1f
     var zr: Float = 0f
 
-
     var maxGridMovementPercent: Float = 0.33f
 
     val innerRadius get() = min(width, height) * 0.5f
