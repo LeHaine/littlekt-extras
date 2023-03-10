@@ -1,5 +1,7 @@
 package com.lehaine.littlekt.extras
 
+import com.lehaine.littlekt.math.castRay
+import com.lehaine.littlekt.math.distSqr
 import com.lehaine.littlekt.util.fastForEach
 
 /**
@@ -35,12 +37,14 @@ class AStar(private val width: Int, private val height: Int, private val hasColl
         }
     }
 
-    fun path(fx: Int, fy: Int, tx: Int, ty: Int): List<GridPoint> {
+    fun path(fx: Int, fy: Int, tx: Int, ty: Int, out: MutableList<GridPoint> = mutableListOf()): List<GridPoint> {
         check(initialized) { "AStar.init() needs to be called first!" }
-
+        out.clear()
         if (castRay(fx, fy, tx, ty)) {
-            return listOf(GridPoint(tx, ty))
+            out += GridPoint(tx, ty, width)
+            return out
         }
+
 
         nodes.fastForEach {
             it.initBeforeAStar()
@@ -70,17 +74,27 @@ class AStar(private val width: Int, private val height: Int, private val hasColl
             }
             nodes.add(end)
         }
-        val path = astar(start, end).map { GridPoint(it.cx, it.cy) }
+        val path = astar(start, end)
+        path.fastForEach {
+            out += GridPoint(it.cx, it.cy, width)
+        }
         for (i in 0 until added) {
             nodes.removeLast()
         }
-        return path
+        return out
     }
 
+    private val open = arrayListOf<PathNode>()
+    private val openMap = hashMapOf<Int, Boolean>()
+    private val closedMap = hashMapOf<Int, Boolean>()
+
     private fun astar(start: PathNode, end: PathNode): ArrayList<PathNode> {
-        val open = arrayListOf(start)
-        val openMap = hashMapOf(start.id to true)
-        val closedMap = hashMapOf<Int, Boolean>()
+        open.clear()
+        openMap.clear()
+        closedMap.clear()
+
+        open += start
+        openMap[start.id] = true
 
         while (open.size > 0) {
             var best = -1
@@ -132,7 +146,7 @@ class AStar(private val width: Int, private val height: Int, private val hasColl
             }
         }
 
-        return arrayListOf()
+        return open
     }
 
 
@@ -146,7 +160,7 @@ class AStar(private val width: Int, private val height: Int, private val hasColl
     }
 
     private fun castRay(fx: Int, fy: Int, tx: Int, ty: Int) =
-        com.lehaine.littlekt.math.castRay(fx, fy, tx, ty, rayCanPass = { x, y -> !hasCollision(x, y) })
+        castRay(fx, fy, tx, ty, rayCanPass = { x, y -> !hasCollision(x, y) })
 
     private fun getDeepestParentOnSight(node: PathNode): PathNode? {
         var parent = node.parent
@@ -191,7 +205,7 @@ private class PathNode(cWdith: Int, val cx: Int, val cy: Int) {
     }
 
 
-    fun distSqr(tx: Int, ty: Int) = com.lehaine.littlekt.math.distSqr(cx, cy, tx, ty).toFloat()
+    fun distSqr(tx: Int, ty: Int) = distSqr(cx, cy, tx, ty).toFloat()
     fun distTotalSqr(tx: Int, ty: Int) = homeDist + distSqr(tx, ty)
 
     override fun equals(other: Any?): Boolean {
