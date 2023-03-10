@@ -4,13 +4,10 @@ import com.github.quillraven.fleks.*
 import com.lehaine.littlekt.Context
 import com.lehaine.littlekt.ContextListener
 import com.lehaine.littlekt.createLittleKtApp
-import com.lehaine.littlekt.extras.ecs.component.GridComponent
-import com.lehaine.littlekt.extras.ecs.component.MoveComponent
-import com.lehaine.littlekt.extras.ecs.component.RenderBoundsComponent
-import com.lehaine.littlekt.extras.ecs.component.SpriteComponent
-import com.lehaine.littlekt.extras.ecs.system.AnimationSystem
-import com.lehaine.littlekt.extras.ecs.system.GridMoveSystem
-import com.lehaine.littlekt.extras.ecs.system.RenderBoundsCalculationSystem
+import com.lehaine.littlekt.extras.ecs.component.*
+import com.lehaine.littlekt.extras.ecs.logic.collision.checker.CollisionChecker
+import com.lehaine.littlekt.extras.ecs.logic.collision.reactor.CollisionReactor
+import com.lehaine.littlekt.extras.ecs.system.*
 import com.lehaine.littlekt.file.vfs.readTexture
 import com.lehaine.littlekt.graphics.Camera
 import com.lehaine.littlekt.graphics.Color
@@ -24,6 +21,7 @@ import com.lehaine.littlekt.input.Input
 import com.lehaine.littlekt.input.Key
 import com.lehaine.littlekt.math.Rect
 import com.lehaine.littlekt.util.calculateViewBounds
+import com.lehaine.littlekt.util.datastructure.Pool
 import com.lehaine.littlekt.util.seconds
 import com.lehaine.littlekt.util.viewport.ExtendViewport
 import com.lehaine.littlekt.util.viewport.Viewport
@@ -40,10 +38,13 @@ class ECSTest(context: Context) : ContextListener(context) {
         val heroIdle = resourcesVfs["test/heroIdle0.png"].readTexture().slice()
         val batch = SpriteBatch(this)
         val viewport = ExtendViewport(240, 135)
+        val gridCollisionPool = Pool { GridCollisionResultComponent(GridCollisionResultComponent.Axes.X, 0) }
 
         val world = world {
             systems {
-                add(GridMoveSystem())
+                add(GridMoveSystem(SimpleCollisionChecker(5, 5), gridCollisionPool))
+                add(GridCollisionResultReactorSystem(SimpleCollisionReactor(5, 5)))
+                add(GridCollisionCleanupSystem(gridCollisionPool))
                 add(PlayerMoveSystem())
 
                 add(PlayerInputSystem(context.input))
@@ -57,6 +58,7 @@ class ECSTest(context: Context) : ContextListener(context) {
             it += SpriteComponent(heroIdle)
             it += RenderBoundsComponent()
             it += GridComponent(gridCellSize)
+            it += CollisionComponent()
             it += MoveComponent(frictionX = 0.82f, frictionY = 0.82f)
             it += PlayerInputComponent()
         }
@@ -77,6 +79,62 @@ class ECSTest(context: Context) : ContextListener(context) {
 
         onDispose {
             world.dispose()
+        }
+    }
+}
+
+private class SimpleCollisionChecker(val gridWidth: Int, val gridHeight: Int) : CollisionChecker() {
+    override fun checkXCollision(grid: GridComponent, move: MoveComponent, collision: CollisionComponent): Int {
+        if (grid.cx - 1 < 0 && grid.xr <= 0.3f) {
+            return -1
+        }
+        if (grid.cx + 1 > gridWidth && grid.xr >= 0.7f) {
+            return 1
+        }
+        return 0
+    }
+
+    override fun checkYCollision(grid: GridComponent, move: MoveComponent, collision: CollisionComponent): Int {
+        if (grid.cy - 1 < 0 && grid.yr <= 0.3f) {
+            return -1
+        }
+        if (grid.cy + 1 > gridHeight && grid.yr >= 0.7f) {
+            return 1
+        }
+        return 0
+    }
+}
+
+private class SimpleCollisionReactor(val gridWidth: Int, val gridHeight: Int) : CollisionReactor() {
+    override fun reactXCollision(
+        grid: GridComponent,
+        move: MoveComponent,
+        collision: CollisionComponent,
+        collisionResult: GridCollisionResultComponent
+    ) {
+        if (collisionResult.dir == -1) {
+            grid.cx = 0
+            grid.xr = 0.3f
+        }
+        if (collisionResult.dir == 1) {
+            grid.cx = gridWidth
+            grid.xr = 0.7f
+        }
+    }
+
+    override fun reactYCollision(
+        grid: GridComponent,
+        move: MoveComponent,
+        collision: CollisionComponent,
+        collisionResult: GridCollisionResultComponent
+    ) {
+        if (collisionResult.dir == -1) {
+            grid.cy = 0
+            grid.yr = 0.3f
+        }
+        if (collisionResult.dir == 1) {
+            grid.cy = gridHeight
+            grid.yr = 0.7f
         }
     }
 }

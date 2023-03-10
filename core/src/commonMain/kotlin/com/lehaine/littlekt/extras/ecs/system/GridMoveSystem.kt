@@ -5,10 +5,9 @@ import com.github.quillraven.fleks.Fixed
 import com.github.quillraven.fleks.Interval
 import com.github.quillraven.fleks.IteratingSystem
 import com.github.quillraven.fleks.World.Companion.family
-import com.lehaine.littlekt.extras.ecs.component.CollisionComponent
-import com.lehaine.littlekt.extras.ecs.component.GravityComponent
-import com.lehaine.littlekt.extras.ecs.component.GridComponent
-import com.lehaine.littlekt.extras.ecs.component.MoveComponent
+import com.lehaine.littlekt.extras.ecs.component.*
+import com.lehaine.littlekt.extras.ecs.logic.collision.checker.CollisionChecker
+import com.lehaine.littlekt.util.datastructure.Pool
 import kotlin.math.abs
 import kotlin.math.ceil
 
@@ -16,8 +15,12 @@ import kotlin.math.ceil
  * @author Colton Daily
  * @date 3/9/2023
  */
-open class GridMoveSystem(interval: Interval = Fixed(1 / 30f)) :
-    IteratingSystem(family = family { all(MoveComponent, GridComponent) }, interval = interval) {
+class GridMoveSystem(
+    private val collisionChecker: CollisionChecker = CollisionChecker(),
+    private val gridCollisionPool: Pool<GridCollisionResultComponent>? = null,
+    interval: Interval = Fixed(1 / 30f)
+) : IteratingSystem(family = family { all(MoveComponent, GridComponent) }, interval = interval) {
+
 
     override fun onTickEntity(entity: Entity) {
         val move = entity[MoveComponent]
@@ -46,8 +49,16 @@ open class GridMoveSystem(interval: Interval = Fixed(1 / 30f)) :
 
                 if (collision != null) {
                     if (move.velocityX != 0f) {
-                        preXCheck(grid, move, collision)
-                        checkXCollision(grid, move, collision)
+                        collisionChecker.preXCheck(grid, move, collision)
+                        val result = collisionChecker.checkXCollision(grid, move, collision)
+                        if (result != 0 && gridCollisionPool != null) {
+                            entity.configure {
+                                it += gridCollisionPool.alloc().apply {
+                                    axes = GridCollisionResultComponent.Axes.X
+                                    dir = result
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -64,8 +75,16 @@ open class GridMoveSystem(interval: Interval = Fixed(1 / 30f)) :
 
                 if (collision != null) {
                     if (move.velocityY != 0f) {
-                        preYCheck(grid, move, collision)
-                        checkYCollision(grid, move, collision)
+                        collisionChecker.preYCheck(grid, move, collision)
+                        val result = collisionChecker.checkYCollision(grid, move, collision)
+                        if (result != 0 && gridCollisionPool != null) {
+                            entity.configure {
+                                it += gridCollisionPool.alloc().apply {
+                                    axes = GridCollisionResultComponent.Axes.Y
+                                    dir = result
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -94,16 +113,5 @@ open class GridMoveSystem(interval: Interval = Fixed(1 / 30f)) :
 
     override fun onAlphaEntity(entity: Entity, alpha: Float) {
         entity[GridComponent].interpolationAlpha = alpha
-    }
-
-    open fun preXCheck(grid: GridComponent, move: MoveComponent, collision: CollisionComponent) = Unit
-    open fun preYCheck(grid: GridComponent, move: MoveComponent, collision: CollisionComponent) = Unit
-
-    open fun checkXCollision(grid: GridComponent, move: MoveComponent, collision: CollisionComponent) {
-        collision.checkXCollision(grid, move)
-    }
-
-    open fun checkYCollision(grid: GridComponent, move: MoveComponent, collision: CollisionComponent) {
-        collision.checkYCollision(grid, move)
     }
 }
