@@ -8,7 +8,7 @@ import com.lehaine.littlekt.extras.ecs.logic.collision.reactor.CollisionChecker
  * @author Colton Daily
  * @date 3/9/2023
  */
-open class GridCollisionComponent(var resolver: CollisionChecker = CollisionChecker()) : Component<GridCollisionComponent> {
+open class GridCollisionComponent(var checker: CollisionChecker = CollisionChecker()) : Component<GridCollisionComponent> {
 
     override fun type(): ComponentType<GridCollisionComponent> = GridCollisionComponent
 

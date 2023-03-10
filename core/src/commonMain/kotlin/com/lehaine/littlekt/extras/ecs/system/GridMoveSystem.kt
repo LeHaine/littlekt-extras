@@ -46,7 +46,7 @@ class GridMoveSystem(
 
                 if (collision != null) {
                     if (move.velocityX != 0f) {
-                        collision.resolver.preXCheck(
+                        collision.checker.preXCheck(
                             grid.cx,
                             grid.cy,
                             grid.xr,
@@ -57,7 +57,7 @@ class GridMoveSystem(
                             grid.height,
                             grid.gridCellSize
                         )
-                        val result = collision.resolver.checkXCollision(
+                        val result = collision.checker.checkXCollision(
                             grid.cx,
                             grid.cy,
                             grid.xr,
@@ -92,7 +92,7 @@ class GridMoveSystem(
 
                 if (collision != null) {
                     if (move.velocityY != 0f) {
-                        collision.resolver.preYCheck(
+                        collision.checker.preYCheck(
                             grid.cx,
                             grid.cy,
                             grid.xr,
@@ -103,7 +103,7 @@ class GridMoveSystem(
                             grid.height,
                             grid.gridCellSize
                         )
-                        val result = collision.resolver.checkYCollision(
+                        val result = collision.checker.checkYCollision(
                             grid.cx,
                             grid.cy,
                             grid.xr,

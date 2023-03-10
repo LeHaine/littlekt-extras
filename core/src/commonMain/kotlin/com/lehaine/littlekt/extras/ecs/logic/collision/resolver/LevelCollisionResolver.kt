@@ -19,7 +19,7 @@ object LevelCollisionResolver : CollisionResolver() {
         collision: GridCollisionComponent,
         collisionResult: GridCollisionResultComponent
     ) {
-        val resolver = collision.resolver
+        val resolver = collision.checker
         if (resolver is LevelCollisionChecker) {
             if (collisionResult.dir == -1) {
                 grid.xr = resolver.leftCollisionRatio
@@ -40,7 +40,7 @@ object LevelCollisionResolver : CollisionResolver() {
         collision: GridCollisionComponent,
         collisionResult: GridCollisionResultComponent
     ) {
-        val resolver = collision.resolver
+        val resolver = collision.checker
         if (resolver is LevelCollisionChecker) {
             val heightCoordDiff =
                 if (resolver.useTopCollisionRatio) resolver.topCollisionRatio else floor(grid.height / grid.gridCellSize)
