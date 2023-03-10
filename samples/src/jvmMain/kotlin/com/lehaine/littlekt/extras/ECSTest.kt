@@ -45,8 +45,8 @@ class ECSTest(context: Context) : ContextListener(context) {
                 add(GridMoveSystem(gridCollisionPool))
                 add(GridCollisionResolverSystem())
                 add(GridCollisionCleanupSystem(gridCollisionPool))
-                add(PlayerMoveSystem())
 
+                add(PlayerMoveSystem())
                 add(PlayerInputSystem(context.input))
 
                 add(AnimationSystem())
