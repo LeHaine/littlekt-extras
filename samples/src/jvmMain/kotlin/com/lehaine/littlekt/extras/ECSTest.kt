@@ -39,7 +39,7 @@ class ECSTest(context: Context) : ContextListener(context) {
     override suspend fun Context.start() {
         val heroIdle = resourcesVfs["test/heroIdle0.png"].readTexture().slice()
         val batch = SpriteBatch(this)
-        val viewport = ExtendViewport(480, 270)
+        val viewport = ExtendViewport(240, 135)
 
         val world = world {
             systems {

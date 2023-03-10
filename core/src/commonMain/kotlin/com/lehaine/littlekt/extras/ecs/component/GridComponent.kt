@@ -20,17 +20,8 @@ class GridComponent(var gridCellSize: Float, var width: Float = gridCellSize, va
     var cy: Int = 0
     var xr: Float = 0.5f
     var yr: Float = 1f
-        set(value) {
-            field = value
-            dirty = true
-        }
     var zr: Float = 0f
-        set(value) {
-            field = value
-            dirty = true
-        }
 
-    var dirty = false
 
     var maxGridMovementPercent: Float = 0.33f
 
@@ -66,7 +57,7 @@ class GridComponent(var gridCellSize: Float, var width: Float = gridCellSize, va
     var scaleY: Float = 1f
     var rotation: Angle = Angle.ZERO
 
-    val attachX get() = (cy + yr) * gridCellSize
+    val attachX get() = (cx + xr) * gridCellSize
     val attachY get() = (cy + yr - zr) * gridCellSize
     val centerX get() = attachX + (0.5f - anchorX) * width
     val centerY get() = attachY + (0.5f - anchorY) * height

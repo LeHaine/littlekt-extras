@@ -29,6 +29,7 @@ class GridMoveSystem(interval: Interval = Fixed(1 / 30f)) :
         grid.lastPx = grid.attachX
         grid.lastPy = grid.attachY
 
+
         if (gravity != null) {
             move.velocityX += gravity.calculateDeltaXGravity()
             move.velocityY += gravity.calculateDeltaYGravity()
