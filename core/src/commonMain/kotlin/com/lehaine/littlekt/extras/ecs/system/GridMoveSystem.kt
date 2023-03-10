@@ -16,7 +16,7 @@ import kotlin.math.ceil
  * @author Colton Daily
  * @date 3/9/2023
  */
-class GridMoveSystem(interval: Interval = Fixed(1 / 30f)) :
+open class GridMoveSystem(interval: Interval = Fixed(1 / 30f)) :
     IteratingSystem(family = family { all(MoveComponent, GridComponent) }, interval = interval) {
 
     override fun onTickEntity(entity: Entity) {
@@ -28,7 +28,6 @@ class GridMoveSystem(interval: Interval = Fixed(1 / 30f)) :
 
         grid.lastPx = grid.attachX
         grid.lastPy = grid.attachY
-
 
         if (gravity != null) {
             move.velocityX += gravity.calculateDeltaXGravity()
@@ -47,8 +46,8 @@ class GridMoveSystem(interval: Interval = Fixed(1 / 30f)) :
 
                 if (collision != null) {
                     if (move.velocityX != 0f) {
-                        collision.preXCheck()
-                        collision.checkXCollision()
+                        preXCheck(grid, move, collision)
+                        checkXCollision(grid, move, collision)
                     }
                 }
 
@@ -65,8 +64,8 @@ class GridMoveSystem(interval: Interval = Fixed(1 / 30f)) :
 
                 if (collision != null) {
                     if (move.velocityY != 0f) {
-                        collision.preYCheck()
-                        collision.checkYCollision()
+                        preYCheck(grid, move, collision)
+                        checkYCollision(grid, move, collision)
                     }
                 }
 
@@ -95,5 +94,16 @@ class GridMoveSystem(interval: Interval = Fixed(1 / 30f)) :
 
     override fun onAlphaEntity(entity: Entity, alpha: Float) {
         entity[GridComponent].interpolationAlpha = alpha
+    }
+
+    open fun preXCheck(grid: GridComponent, move: MoveComponent, collision: CollisionComponent) = Unit
+    open fun preYCheck(grid: GridComponent, move: MoveComponent, collision: CollisionComponent) = Unit
+
+    open fun checkXCollision(grid: GridComponent, move: MoveComponent, collision: CollisionComponent) {
+        collision.checkXCollision(grid, move)
+    }
+
+    open fun checkYCollision(grid: GridComponent, move: MoveComponent, collision: CollisionComponent) {
+        collision.checkYCollision(grid, move)
     }
 }

@@ -8,13 +8,10 @@ import com.github.quillraven.fleks.ComponentType
  * @date 3/9/2023
  */
 open class CollisionComponent : Component<CollisionComponent> {
+    open fun checkXCollision(grid: GridComponent, move: MoveComponent): Int = 0
+    open fun checkYCollision(grid: GridComponent, move: MoveComponent): Int = 0
+
     override fun type(): ComponentType<CollisionComponent> = CollisionComponent
-
-    open fun preXCheck() = Unit
-    open fun preYCheck() = Unit
-
-    open fun checkXCollision() = Unit
-    open fun checkYCollision() = Unit
 
     companion object : ComponentType<CollisionComponent>()
 }
