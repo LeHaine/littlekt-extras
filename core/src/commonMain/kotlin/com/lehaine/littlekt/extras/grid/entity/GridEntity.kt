@@ -1,4 +1,4 @@
-package com.lehaine.littlekt.extras.entity
+package com.lehaine.littlekt.extras.grid.entity
 
 import com.lehaine.littlekt.extras.Cooldown
 import com.lehaine.littlekt.extras.renderable.AnimatedSprite

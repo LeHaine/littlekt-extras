@@ -1,4 +1,4 @@
-package com.lehaine.littlekt.extras.entity
+package com.lehaine.littlekt.extras.grid.entity
 
 import com.lehaine.littlekt.extras.GameLevel
 import com.lehaine.littlekt.graphics.g2d.tilemap.ldtk.LDtkEntity

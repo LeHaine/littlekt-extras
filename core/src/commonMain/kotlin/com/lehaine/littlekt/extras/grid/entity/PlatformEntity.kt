@@ -1,4 +1,4 @@
-package com.lehaine.littlekt.extras.entity
+package com.lehaine.littlekt.extras.grid.entity
 
 import com.lehaine.littlekt.graph.node.Node
 import com.lehaine.littlekt.graph.node.addTo

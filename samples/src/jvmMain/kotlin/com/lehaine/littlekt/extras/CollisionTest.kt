@@ -2,8 +2,8 @@ package com.lehaine.littlekt.extras
 
 import com.lehaine.littlekt.Context
 import com.lehaine.littlekt.createLittleKtApp
-import com.lehaine.littlekt.extras.entity.GridEntity
-import com.lehaine.littlekt.extras.entity.toPixelPosition
+import com.lehaine.littlekt.extras.grid.entity.GridEntity
+import com.lehaine.littlekt.extras.grid.entity.toPixelPosition
 import com.lehaine.littlekt.graphics.Camera
 import com.lehaine.littlekt.graphics.Color
 import com.lehaine.littlekt.graphics.OrthographicCamera
