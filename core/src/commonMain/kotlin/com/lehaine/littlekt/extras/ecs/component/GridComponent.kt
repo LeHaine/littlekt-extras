@@ -2,8 +2,13 @@ package com.lehaine.littlekt.extras.ecs.component
 
 import com.github.quillraven.fleks.Component
 import com.github.quillraven.fleks.ComponentType
+import com.lehaine.littlekt.extras.entity.Entity
+import com.lehaine.littlekt.math.castRay
+import com.lehaine.littlekt.math.dist
 import com.lehaine.littlekt.math.geom.Angle
+import com.lehaine.littlekt.math.geom.radians
 import com.lehaine.littlekt.math.interpolate
+import kotlin.math.atan2
 import kotlin.math.max
 import kotlin.math.min
 
@@ -34,7 +39,7 @@ class GridComponent(var gridCellSize: Float, var width: Float = gridCellSize, va
     var lastPx: Float = 0f
     var lastPy: Float = 0f
 
-    val x: Float
+    var x: Float
         get() {
             return if (interpolatePixelPosition) {
                 interpolationAlpha.interpolate(lastPx, attachX)
@@ -42,14 +47,24 @@ class GridComponent(var gridCellSize: Float, var width: Float = gridCellSize, va
                 attachX
             }
         }
+        set(value) {
+            cx = (value / gridCellSize).toInt()
+            xr = (value - cx * gridCellSize) / gridCellSize
+            onPositionManuallyChanged()
+        }
 
-    val y: Float
+    var y: Float
         get() {
             return if (interpolatePixelPosition) {
                 interpolationAlpha.interpolate(lastPy, attachY)
             } else {
                 attachY
             }
+        }
+        set(value) {
+            cy = (value / gridCellSize).toInt()
+            yr = (value - cy * gridCellSize) / gridCellSize
+            onPositionManuallyChanged()
         }
 
     var scaleX: Float = 1f
@@ -64,6 +79,40 @@ class GridComponent(var gridCellSize: Float, var width: Float = gridCellSize, va
     val right get() = attachX + (1 - anchorX) * width
     val bottom get() = attachY + (1 - anchorY) * height
     val left get() = attachX - anchorX * width
+
+    fun castRayTo(tcx: Int, tcy: Int, canRayPass: (Int, Int) -> Boolean) =
+        castRay(cx, cy, tcx, tcy, canRayPass)
+
+    fun castRayTo(target: Entity, canRayPass: (Int, Int) -> Boolean) =
+        castRay(cx, cy, target.cx, target.cy, canRayPass)
+
+    fun toGridPosition(cx: Int, cy: Int, xr: Float = 0.5f, yr: Float = 1f) {
+        this.cx = cx
+        this.cy = cy
+        this.xr = xr
+        this.yr = yr
+        onPositionManuallyChanged()
+    }
+
+    fun dirTo(target: GridComponent) = dirTo(target.centerX)
+
+    fun dirTo(targetX: Float) = if (targetX > centerX) 1 else -1
+
+    fun distGridTo(tcx: Int, tcy: Int, txr: Float = 0.5f, tyr: Float = 0.5f) =
+        dist(cx + xr, cy + yr, tcx + txr, tcy + tyr)
+
+    fun distGridTo(target: GridComponent) = distGridTo(target.cx, target.cy, target.xr, target.yr)
+
+    fun distPxTo(x: Float, y: Float) = dist(this.x, this.y, x, y)
+    fun distPxTo(target: GridComponent) = distPxTo(target.x, target.y)
+
+    fun angleTo(x: Float, y: Float) = atan2(y - this.y, x - this.x).radians
+    fun angleTo(target: GridComponent) = angleTo(target.centerX, target.centerY)
+
+    fun onPositionManuallyChanged() {
+        lastPx = attachX
+        lastPy = attachY
+    }
 
     override fun type(): ComponentType<GridComponent> = GridComponent
 
