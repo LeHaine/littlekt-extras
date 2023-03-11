@@ -7,12 +7,12 @@ import kotlin.math.floor
  * @author Colton Daily
  * @date 3/10/2023
  */
-class LevelCollisionChecker(private val level: GameLevel<*>) : CollisionChecker() {
-    var rightCollisionRatio: Float = 0.7f
-    var leftCollisionRatio: Float = 0.3f
+class ObliqueCollisionChecker(private val level: GameLevel<*>) : CollisionChecker() {
+    var rightCollisionRatio: Float = 0.8f
+    var leftCollisionRatio: Float = 0.2f
     var bottomCollisionRatio: Float = 1f
-    var topCollisionRatio: Float = 1f
-    var useTopCollisionRatio: Boolean = false
+    var topCollisionRatio: Float = 0.3f
+    var useTopCollisionRatio: Boolean = true
 
     override fun checkXCollision(
         cx: Int,

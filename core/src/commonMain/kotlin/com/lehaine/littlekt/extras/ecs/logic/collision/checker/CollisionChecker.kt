@@ -52,4 +52,6 @@ open class CollisionChecker {
         height: Float,
         cellSize: Float
     ): Int = 0
+
+    open fun hasCollision(cx: Int, cy: Int): Boolean = false
 }

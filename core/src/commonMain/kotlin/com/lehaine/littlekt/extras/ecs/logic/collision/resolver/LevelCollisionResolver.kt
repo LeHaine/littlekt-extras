@@ -19,14 +19,14 @@ object LevelCollisionResolver : CollisionResolver() {
         collision: GridCollisionComponent,
         collisionResult: GridCollisionResultComponent
     ) {
-        val resolver = collision.checker
-        if (resolver is LevelCollisionChecker) {
+        val checker = collision.checker
+        if (checker is LevelCollisionChecker) {
             if (collisionResult.dir == -1) {
-                grid.xr = resolver.leftCollisionRatio
+                grid.xr = checker.leftCollisionRatio
                 move.velocityX *= 0.5f
             }
             if (collisionResult.dir == 1) {
-                grid.xr = resolver.rightCollisionRatio
+                grid.xr = checker.rightCollisionRatio
                 move.velocityX *= 0.5f
             }
         } else {
@@ -40,16 +40,16 @@ object LevelCollisionResolver : CollisionResolver() {
         collision: GridCollisionComponent,
         collisionResult: GridCollisionResultComponent
     ) {
-        val resolver = collision.checker
-        if (resolver is LevelCollisionChecker) {
+        val checker = collision.checker
+        if (checker is LevelCollisionChecker) {
             val heightCoordDiff =
-                if (resolver.useTopCollisionRatio) resolver.topCollisionRatio else floor(grid.height / grid.gridCellSize)
+                if (checker.useTopCollisionRatio) checker.topCollisionRatio else floor(grid.height / grid.gridCellSize)
             if (collisionResult.dir == -1) {
                 grid.yr = heightCoordDiff
                 move.velocityY = 0f
             }
             if (collisionResult.dir == 1) {
-                grid.yr = resolver.bottomCollisionRatio
+                grid.yr = checker.bottomCollisionRatio
                 move.velocityY = 0f
             }
         } else {
