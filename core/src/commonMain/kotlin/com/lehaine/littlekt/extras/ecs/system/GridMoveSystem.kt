@@ -146,6 +146,34 @@ class GridMoveSystem(
         if (abs(move.velocityY) <= 0.0005f) {
             move.velocityY = 0f
         }
+
+        grid.zr += move.velocityZ
+
+        if (grid.zr > 0 && gravity != null) {
+            move.velocityZ -= gravity.calculateDeltaZGravity()
+        }
+
+        if (grid.zr < 0) {
+            grid.zr = 0f
+            move.velocityZ = -move.velocityZ * 0.9f
+            if (abs(move.velocityZ) <= 0.06f) {
+                move.velocityZ = 0f
+            }
+            if (gridCollisionPool != null) {
+                entity.configure {
+                    it += gridCollisionPool.alloc().apply {
+                        axes = GridCollisionResultComponent.Axes.Z
+                        dir = 0
+                    }
+                }
+            }
+        }
+
+
+        move.velocityZ *= move.frictionZ
+        if (abs(move.velocityZ) <= 0.0005f) {
+            move.velocityZ = 0f
+        }
     }
 
     override fun onAlphaEntity(entity: Entity, alpha: Float) {

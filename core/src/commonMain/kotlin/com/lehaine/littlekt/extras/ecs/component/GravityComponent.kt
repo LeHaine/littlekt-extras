@@ -12,6 +12,7 @@ open class GravityComponent : Component<GravityComponent> {
 
     open fun calculateDeltaXGravity(): Float = 0f
     open fun calculateDeltaYGravity(): Float = 0f
+    open fun calculateDeltaZGravity(): Float = 0f
 
     companion object : ComponentType<GravityComponent>()
 }
