@@ -8,7 +8,7 @@ import kotlin.math.floor
  * @author Colton Daily
  * @date 11/7/2022
  */
-open class ObliqueEntity(level: GameLevel<*>, gridCellSize: Float) : LevelEntity(level, gridCellSize) {
+open class GridObliqueEntity(level: GameLevel<*>, gridCellSize: Float) : GridLevelEntity(level, gridCellSize) {
     override var rightCollisionRatio: Float = 0.8f
     override var leftCollisionRatio: Float = 0.2f
     override var bottomCollisionRatio: Float = 1f

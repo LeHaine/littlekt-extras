@@ -4,7 +4,7 @@ import com.lehaine.littlekt.extras.GameLevel
 import com.lehaine.littlekt.graphics.g2d.tilemap.ldtk.LDtkEntity
 import kotlin.math.floor
 
-open class LevelEntity(
+open class GridLevelEntity(
     protected open val level: GameLevel<*>,
     gridCellSize: Float
 ) : GridEntity(gridCellSize) {

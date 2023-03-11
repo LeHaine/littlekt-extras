@@ -1,14 +1,8 @@
 package com.lehaine.littlekt.extras.grid.entity
 
-import com.lehaine.littlekt.graph.node.Node
-import com.lehaine.littlekt.graph.node.addTo
-import com.lehaine.littlekt.graph.node.annotation.SceneGraphDslMarker
 import com.lehaine.littlekt.extras.GameLevel
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
 
-open class PlatformEntity(level: GameLevel<*>, gridCellSize: Float) : LevelEntity(level, gridCellSize) {
+open class GridPlatformEntity(level: GameLevel<*>, gridCellSize: Float) : GridLevelEntity(level, gridCellSize) {
     val onGround
         get() = velocityY == 0f && level.hasCollision(
             cx,
