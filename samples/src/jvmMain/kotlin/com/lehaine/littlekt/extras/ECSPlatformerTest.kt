@@ -6,6 +6,7 @@ import com.lehaine.littlekt.ContextListener
 import com.lehaine.littlekt.createLittleKtApp
 import com.lehaine.littlekt.extras.ecs.component.*
 import com.lehaine.littlekt.extras.ecs.logic.collision.checker.CollisionChecker
+import com.lehaine.littlekt.extras.ecs.logic.collision.checker.GroundChecker
 import com.lehaine.littlekt.extras.ecs.logic.collision.resolver.CollisionResolver
 import com.lehaine.littlekt.extras.ecs.system.*
 import com.lehaine.littlekt.file.vfs.readTexture
@@ -30,7 +31,7 @@ import com.lehaine.littlekt.util.viewport.Viewport
  * @author Colton Daily
  * @date 3/9/2023
  */
-class ECSTest(context: Context) : ContextListener(context) {
+class ECSPlatformerTest(context: Context) : ContextListener(context) {
 
     private val gridCellSize = 16f
 
@@ -42,12 +43,15 @@ class ECSTest(context: Context) : ContextListener(context) {
 
         val world = world {
             systems {
-                add(GridMoveSystem(gridCollisionPool))
-                add(GridCollisionResolverSystem())
-                add(GridCollisionCleanupSystem(gridCollisionPool))
+                add(PlatformerGroundSystem())
+                add(PlatformerGravitySystem())
 
                 add(PlayerMoveSystem())
                 add(PlayerInputSystem(context.input))
+
+                add(GridMoveSystem(gridCollisionPool))
+                add(GridCollisionResolverSystem())
+                add(GridCollisionCleanupSystem(gridCollisionPool))
 
                 add(AnimationSystem())
                 add(SpriteRenderBoundsCalculationSystem())
@@ -60,6 +64,10 @@ class ECSTest(context: Context) : ContextListener(context) {
             it += GridComponent(gridCellSize)
             it += GridCollisionComponent(SimpleCollisionChecker(5, 5))
             it += GridCollisionResolverComponent(SimpleCollisionResolver(5, 5))
+            it += GravityComponent().apply {
+                gravityY = 0.075f
+            }
+            it += PlatformerComponent(SimpleGroundChecker(5))
             it += MoveComponent(frictionX = 0.82f, frictionY = 0.82f)
             it += PlayerInputComponent()
         }
@@ -159,6 +167,19 @@ class ECSTest(context: Context) : ContextListener(context) {
         }
     }
 
+    private class SimpleGroundChecker(val gridHeight: Int) : GroundChecker() {
+        override fun onGround(
+            velocityY: Float,
+            cx: Int,
+            cy: Int,
+            xr: Float,
+            yr: Float,
+            collisionChecker: CollisionChecker
+        ): Boolean {
+            return cy == gridHeight
+        }
+    }
+
     private class RenderSystem(
         private val context: Context,
         private val batch: Batch,
@@ -216,25 +237,24 @@ class ECSTest(context: Context) : ContextListener(context) {
     }
 
     private class PlayerInputSystem(private val input: Input) :
-        IteratingSystem(World.family { all(PlayerInputComponent) }) {
+        IteratingSystem(World.family { all(PlayerInputComponent, MoveComponent) }) {
 
         override fun onTickEntity(entity: Entity) {
             val playerInput = entity[PlayerInputComponent]
+            val move = entity[MoveComponent]
 
             playerInput.xMoveStrength = 0f
             playerInput.yMoveStrength = 0f
 
-            if (input.isKeyPressed(Key.W)) {
-                playerInput.yMoveStrength = -1f
-            }
-            if (input.isKeyPressed(Key.S)) {
-                playerInput.yMoveStrength = 1f
-            }
             if (input.isKeyPressed(Key.A)) {
                 playerInput.xMoveStrength = -1f
             }
             if (input.isKeyPressed(Key.D)) {
                 playerInput.xMoveStrength = 1f
+            }
+
+            if (input.isKeyJustPressed(Key.SPACE)) {
+                move.velocityY = -0.5f
             }
         }
     }
@@ -259,6 +279,6 @@ fun main() {
         height = 540
         backgroundColor = Color.DARK_GRAY
     }.start {
-        ECSTest(it)
+        ECSPlatformerTest(it)
     }
 }
