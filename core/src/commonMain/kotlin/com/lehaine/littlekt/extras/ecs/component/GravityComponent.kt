@@ -7,12 +7,48 @@ import com.github.quillraven.fleks.ComponentType
  * @author Colton Daily
  * @date 3/9/2023
  */
-open class GravityComponent : Component<GravityComponent> {
+class GravityComponent : Component<GravityComponent> {
+    var gravityX: Float = 0f
+    var gravityY: Float = 0f
+    var gravityZ: Float = 0f
+
+    var gravityMultiplier: Float = 1f
+
+    var enableGravityX: Boolean = true
+    var enableGravityY: Boolean = true
+    var enableGravityZ: Boolean = true
+
+    fun enableAll(enable: Boolean) {
+        enableGravityX = enable
+        enableGravityY = enable
+        enableGravityZ = enable
+    }
+
     override fun type(): ComponentType<GravityComponent> = GravityComponent
 
-    open fun calculateDeltaXGravity(): Float = 0f
-    open fun calculateDeltaYGravity(): Float = 0f
-    open fun calculateDeltaZGravity(): Float = 0f
+    fun calculateDeltaXGravity(): Float {
+        return if (enableGravityX) {
+            gravityMultiplier * gravityX
+        } else {
+            0f
+        }
+    }
+
+    fun calculateDeltaYGravity(): Float {
+        return if (enableGravityY) {
+            gravityMultiplier * gravityY
+        } else {
+            0f
+        }
+    }
+
+    fun calculateDeltaZGravity(): Float {
+        return if (enableGravityZ) {
+            gravityMultiplier * gravityZ
+        } else {
+            0f
+        }
+    }
 
     companion object : ComponentType<GravityComponent>()
 }
