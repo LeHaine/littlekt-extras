@@ -7,7 +7,7 @@ import kotlin.math.floor
 open class LevelEntity(
     protected open val level: GameLevel<*>,
     gridCellSize: Float
-) : Entity(gridCellSize) {
+) : GridEntity(gridCellSize) {
     open var rightCollisionRatio: Float = 0.7f
     open var leftCollisionRatio: Float = 0.3f
     open var bottomCollisionRatio: Float = 1f

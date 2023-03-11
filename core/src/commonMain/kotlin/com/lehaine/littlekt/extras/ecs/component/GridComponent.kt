@@ -2,7 +2,7 @@ package com.lehaine.littlekt.extras.ecs.component
 
 import com.github.quillraven.fleks.Component
 import com.github.quillraven.fleks.ComponentType
-import com.lehaine.littlekt.extras.entity.Entity
+import com.lehaine.littlekt.extras.entity.GridEntity
 import com.lehaine.littlekt.math.castRay
 import com.lehaine.littlekt.math.dist
 import com.lehaine.littlekt.math.geom.Angle
@@ -83,7 +83,7 @@ class GridComponent(var gridCellSize: Float, var width: Float = gridCellSize, va
     fun castRayTo(tcx: Int, tcy: Int, canRayPass: (Int, Int) -> Boolean) =
         castRay(cx, cy, tcx, tcy, canRayPass)
 
-    fun castRayTo(target: Entity, canRayPass: (Int, Int) -> Boolean) =
+    fun castRayTo(target: GridEntity, canRayPass: (Int, Int) -> Boolean) =
         castRay(cx, cy, target.cx, target.cy, canRayPass)
 
     fun toGridPosition(cx: Int, cy: Int, xr: Float = 0.5f, yr: Float = 1f) {

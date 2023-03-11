@@ -27,12 +27,12 @@ import kotlin.time.Duration
 annotation class EntityDslMarker
 
 @OptIn(ExperimentalContracts::class)
-fun entity(gridCellSize: Float, callback: @EntityDslMarker Entity.() -> Unit = {}): Entity {
+fun gridEntity(gridCellSize: Float, callback: @EntityDslMarker GridEntity.() -> Unit = {}): GridEntity {
     contract { callsInPlace(callback, InvocationKind.EXACTLY_ONCE) }
-    return Entity(gridCellSize).also(callback)
+    return GridEntity(gridCellSize).also(callback)
 }
 
-open class Entity(val gridCellSize: Float) {
+open class GridEntity(val gridCellSize: Float) {
     val sprite = AnimatedSprite()
 
     var anchorX: Float
@@ -282,7 +282,7 @@ open class Entity(val gridCellSize: Float) {
     /**
      * AABB check
      */
-    fun isCollidingWith(from: Entity, useSat: Boolean = false): Boolean {
+    fun isCollidingWith(from: GridEntity, useSat: Boolean = false): Boolean {
         if (useSat) {
             if (rotation != 0.radians || from.rotation != 0.radians) {
                 if (!isCollidingWithOuterCircle(from)) return false
@@ -312,12 +312,12 @@ open class Entity(val gridCellSize: Float) {
         return true
     }
 
-    fun isCollidingWithInnerCircle(from: Entity): Boolean {
+    fun isCollidingWithInnerCircle(from: GridEntity): Boolean {
         val dist = innerRadius + from.innerRadius
         return distSqr(centerX, centerY, from.centerX, from.centerY) <= dist * dist
     }
 
-    fun isCollidingWithOuterCircle(from: Entity): Boolean {
+    fun isCollidingWithOuterCircle(from: GridEntity): Boolean {
         val dist = outerRadius + from.outerRadius
         return distSqr(centerX, centerY, from.centerX, from.centerY) <= dist * dist
     }

@@ -7,13 +7,13 @@ import kotlin.math.atan2
 import kotlin.time.Duration
 
 
-fun Entity.castRayTo(tcx: Int, tcy: Int, canRayPass: (Int, Int) -> Boolean) =
+fun GridEntity.castRayTo(tcx: Int, tcy: Int, canRayPass: (Int, Int) -> Boolean) =
     castRay(cx, cy, tcx, tcy, canRayPass)
 
-fun Entity.castRayTo(target: Entity, canRayPass: (Int, Int) -> Boolean) =
+fun GridEntity.castRayTo(target: GridEntity, canRayPass: (Int, Int) -> Boolean) =
     castRay(cx, cy, target.cx, target.cy, canRayPass)
 
-fun Entity.toGridPosition(cx: Int, cy: Int, xr: Float = 0.5f, yr: Float = 1f) {
+fun GridEntity.toGridPosition(cx: Int, cy: Int, xr: Float = 0.5f, yr: Float = 1f) {
     this.cx = cx
     this.cy = cy
     this.xr = xr
@@ -21,7 +21,7 @@ fun Entity.toGridPosition(cx: Int, cy: Int, xr: Float = 0.5f, yr: Float = 1f) {
     onPositionManuallyChanged()
 }
 
-fun Entity.toPixelPosition(x: Float, y: Float) {
+fun GridEntity.toPixelPosition(x: Float, y: Float) {
     this.cx = (x / gridCellSize).toInt()
     this.cy = (y / gridCellSize).toInt()
     this.xr = (x - cx * gridCellSize) / gridCellSize
@@ -29,25 +29,25 @@ fun Entity.toPixelPosition(x: Float, y: Float) {
     onPositionManuallyChanged()
 }
 
-fun Entity.dirTo(target: Entity) = dirTo(target.centerX)
+fun GridEntity.dirTo(target: GridEntity) = dirTo(target.centerX)
 
-fun Entity.dirTo(targetX: Float) = if (targetX > centerX) 1 else -1
+fun GridEntity.dirTo(targetX: Float) = if (targetX > centerX) 1 else -1
 
-fun Entity.distGridTo(tcx: Int, tcy: Int, txr: Float = 0.5f, tyr: Float = 0.5f) =
+fun GridEntity.distGridTo(tcx: Int, tcy: Int, txr: Float = 0.5f, tyr: Float = 0.5f) =
     dist(cx + xr, cy + yr, tcx + txr, tcy + tyr)
 
-fun Entity.distGridTo(target: Entity) = distGridTo(target.cx, target.cy, target.xr, target.yr)
+fun GridEntity.distGridTo(target: GridEntity) = distGridTo(target.cx, target.cy, target.xr, target.yr)
 
-fun Entity.distPxTo(x: Float, y: Float) = dist(this.x, this.y, x, y)
-fun Entity.distPxTo(targetGridPosition: Entity) = distPxTo(targetGridPosition.x, targetGridPosition.y)
+fun GridEntity.distPxTo(x: Float, y: Float) = dist(this.x, this.y, x, y)
+fun GridEntity.distPxTo(targetGridPosition: GridEntity) = distPxTo(targetGridPosition.x, targetGridPosition.y)
 
-fun Entity.angleTo(x: Float, y: Float) = atan2(y - this.y, x - this.x).radians
-fun Entity.angleTo(target: Entity) = angleTo(target.centerX, target.centerY)
+fun GridEntity.angleTo(x: Float, y: Float) = atan2(y - this.y, x - this.x).radians
+fun GridEntity.angleTo(target: GridEntity) = angleTo(target.centerX, target.centerY)
 
-val Entity.cd get() = this.cooldown
+val GridEntity.cd get() = this.cooldown
 
-fun Entity.cooldown(name: String, time: Duration, callback: () -> Unit = {}) =
+fun GridEntity.cooldown(name: String, time: Duration, callback: () -> Unit = {}) =
     this.cooldown.timeout(name, time, callback)
 
-fun Entity.cd(name: String, time: Duration, callback: () -> Unit = {}) =
+fun GridEntity.cd(name: String, time: Duration, callback: () -> Unit = {}) =
     cooldown(name, time, callback)

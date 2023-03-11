@@ -2,7 +2,7 @@ package com.lehaine.littlekt.extras
 
 import com.lehaine.littlekt.Context
 import com.lehaine.littlekt.createLittleKtApp
-import com.lehaine.littlekt.extras.entity.Entity
+import com.lehaine.littlekt.extras.entity.GridEntity
 import com.lehaine.littlekt.extras.entity.toPixelPosition
 import com.lehaine.littlekt.graphics.Camera
 import com.lehaine.littlekt.graphics.Color
@@ -34,7 +34,7 @@ class CollisionTest(context: Context) : FixedTimeContextListener(context) {
 
     val input: Input get() = context.input
 
-    open inner class BitsEntity : Entity(8f) {
+    open inner class BitsEntity : GridEntity(8f) {
         var currentBits = 0f
 
         override fun render(batch: Batch, camera: Camera, shapeRenderer: ShapeRenderer) {
