@@ -1,5 +1,6 @@
 package com.lehaine.littlekt.extras.ecs.system
 
+import com.github.quillraven.fleks.ComponentType
 import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.IteratingSystem
 import com.github.quillraven.fleks.World.Companion.family
@@ -13,13 +14,19 @@ import com.lehaine.littlekt.util.fastForEach
  * @author Colton Daily
  * @date 3/10/2023
  */
-class ParticlesRenderSystem(private val batch: Batch, private val viewBounds: Rect) :
-    IteratingSystem(family { all(ParticlesComponent) }) {
+open class ParticlesRenderSystem(
+    private val batch: Batch,
+    private val viewBounds: Rect,
+    vararg extraTypes: ComponentType<*> = emptyArray()
+) : IteratingSystem(family { all(ParticlesComponent, *extraTypes) }) {
 
     override fun onTickEntity(entity: Entity) {
         val particlesComponent = entity[ParticlesComponent]
 
         with(particlesComponent) {
+            if (particles.isNotEmpty()) {
+                batch.setBlendFunction(blendMode)
+            }
             particles.fastForEach {
                 if (!it.visible || !it.alive) return@fastForEach
 
@@ -42,6 +49,10 @@ class ParticlesRenderSystem(private val batch: Batch, private val viewBounds: Re
                         colorBits = it.color.toFloatBits()
                     )
                 }
+            }
+
+            if (particles.isNotEmpty()) {
+                batch.setToPreviousBlendFunction()
             }
         }
     }

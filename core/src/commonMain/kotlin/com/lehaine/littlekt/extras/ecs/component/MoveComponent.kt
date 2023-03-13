@@ -11,8 +11,8 @@ data class MoveComponent(
     var velocityX: Float = 0f,
     var velocityY: Float = 0f,
     var velocityZ: Float = 0f,
-    var frictionX: Float = 1f,
-    var frictionY: Float = 1f,
+    var frictionX: Float = 0.82f,
+    var frictionY: Float = 0.82f,
     var frictionZ: Float = 1f
 ) : Component<MoveComponent> {
     override fun type(): ComponentType<MoveComponent> = MoveComponent
