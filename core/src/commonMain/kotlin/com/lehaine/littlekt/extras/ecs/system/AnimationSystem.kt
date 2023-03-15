@@ -5,6 +5,7 @@ import com.github.quillraven.fleks.IteratingSystem
 import com.github.quillraven.fleks.World.Companion.family
 import com.lehaine.littlekt.extras.ecs.component.AnimationComponent
 import com.lehaine.littlekt.extras.ecs.component.SpriteComponent
+import com.lehaine.littlekt.util.seconds
 
 /**
  * @author Colton Daily
@@ -16,6 +17,7 @@ class AnimationSystem : IteratingSystem(family { all(SpriteComponent, AnimationC
         val sprite = entity[SpriteComponent]
         val animation = entity[AnimationComponent]
 
+        animation.update(deltaTime.seconds)
         sprite.slice = animation.currentAnimation?.getFrame(animation.currentFrameIdx) ?: sprite.slice
     }
 }
