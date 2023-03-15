@@ -19,13 +19,50 @@ import kotlin.math.min
 class GridComponent(var gridCellSize: Float, var width: Float = gridCellSize, var height: Float = gridCellSize) :
     Component<GridComponent> {
     var anchorX: Float = 0.5f
+        set(value) {
+            if (field == value) return
+            field = value
+            dirty = true
+        }
     var anchorY: Float = 0.5f
+        set(value) {
+            if (field == value) return
+            field = value
+            dirty = true
+        }
 
     var cx: Int = 0
+        set(value) {
+            if (field == value) return
+            field = value
+            dirty = true
+        }
     var cy: Int = 0
+        set(value) {
+            if (field == value) return
+            field = value
+            dirty = true
+        }
     var xr: Float = 0.5f
+        set(value) {
+            if (field == value) return
+            field = value
+            dirty = true
+        }
     var yr: Float = 1f
+        set(value) {
+            if (field == value) return
+            field = value
+            dirty = true
+        }
     var zr: Float = 0f
+        set(value) {
+            if (field == value) return
+            field = value
+            dirty = true
+        }
+
+    internal var dirty: Boolean = false
 
     var maxGridMovementPercent: Float = 0.33f
 
@@ -68,8 +105,23 @@ class GridComponent(var gridCellSize: Float, var width: Float = gridCellSize, va
         }
 
     var scaleX: Float = 1f
+        set(value) {
+            if (field == value) return
+            field = value
+            dirty = true
+        }
     var scaleY: Float = 1f
+        set(value) {
+            if (field == value) return
+            field = value
+            dirty = true
+        }
     var rotation: Angle = Angle.ZERO
+        set(value) {
+            if (field == value) return
+            field = value
+            dirty = true
+        }
 
     val attachX get() = (cx + xr) * gridCellSize
     val attachY get() = (cy + yr - zr) * gridCellSize

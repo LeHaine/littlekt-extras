@@ -32,27 +32,32 @@ class SpriteRenderBoundsCalculationSystem :
         val grid = entity[GridComponent]
         val sprite = entity[SpriteComponent]
         val renderBounds = entity[RenderBoundsComponent]
-        val slice = sprite.slice
 
-        val origWidth =
-            (if (slice?.rotated == true) slice.originalHeight.toFloat() else slice?.originalWidth?.toFloat())
-                ?: sprite.renderWidth
-        val origHeight =
-            (if (slice?.rotated == true) slice.originalWidth.toFloat() else slice?.originalHeight?.toFloat())
-                ?: sprite.renderHeight
+        if (grid.dirty || sprite.dirty) {
+            grid.dirty = false
+            sprite.dirty = false
 
-        calculateBounds(
-            grid.x, grid.y, grid.anchorX, grid.anchorY,
-            (origWidth - (slice?.offsetX ?: 0)) * grid.anchorX,
-            (origHeight - (slice?.offsetY ?: 0)) * grid.anchorY,
-            grid.scaleX,
-            grid.scaleY,
-            rotation = grid.rotation,
-            width = if (slice?.rotated == true) sprite.renderHeight else sprite.renderWidth,
-            height = if (slice?.rotated == true) sprite.renderWidth else sprite.renderHeight
-        )
+            val slice = sprite.slice
+            val origWidth =
+                (if (slice?.rotated == true) slice.originalHeight.toFloat() else slice?.originalWidth?.toFloat())
+                    ?: sprite.renderWidth
+            val origHeight =
+                (if (slice?.rotated == true) slice.originalWidth.toFloat() else slice?.originalHeight?.toFloat())
+                    ?: sprite.renderHeight
 
-        renderBounds.bounds.set(_bounds.x, _bounds.y, _bounds.width, _bounds.height)
+            calculateBounds(
+                grid.x, grid.y, grid.anchorX, grid.anchorY,
+                (origWidth - (slice?.offsetX ?: 0)) * grid.anchorX,
+                (origHeight - (slice?.offsetY ?: 0)) * grid.anchorY,
+                grid.scaleX,
+                grid.scaleY,
+                rotation = grid.rotation,
+                width = if (slice?.rotated == true) sprite.renderHeight else sprite.renderWidth,
+                height = if (slice?.rotated == true) sprite.renderWidth else sprite.renderHeight
+            )
+
+            renderBounds.bounds.set(_bounds.x, _bounds.y, _bounds.width, _bounds.height)
+        }
     }
 
     private fun calculateBounds(

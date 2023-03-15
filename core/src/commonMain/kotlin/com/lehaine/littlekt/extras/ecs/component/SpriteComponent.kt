@@ -11,7 +11,13 @@ import com.lehaine.littlekt.graphics.g2d.TextureSlice
  * @author Colton Daily
  * @date 3/9/2023
  */
-data class SpriteComponent(var slice: TextureSlice? = null) : Component<SpriteComponent> {
+class SpriteComponent(slice: TextureSlice? = null) : Component<SpriteComponent> {
+    var slice: TextureSlice? = slice
+        set(value) {
+            if (field == value) return
+            field = value
+            dirty = true
+        }
     val renderWidth: Float
         get() = if (overrideWidth) overriddenWidth else slice?.width?.toFloat() ?: 0f
 
@@ -23,6 +29,8 @@ data class SpriteComponent(var slice: TextureSlice? = null) : Component<SpriteCo
 
     var overriddenWidth = 0f
     var overriddenHeight = 0f
+
+    internal var dirty = false
 
     /**
      * Flips the current rendering of the [Sprite] horizontally.
