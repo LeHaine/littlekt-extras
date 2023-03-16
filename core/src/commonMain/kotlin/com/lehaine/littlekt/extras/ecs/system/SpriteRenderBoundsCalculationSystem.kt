@@ -48,14 +48,17 @@ class SpriteRenderBoundsCalculationSystem :
                     ?: sprite.renderHeight
 
             calculateBounds(
-                grid.x, grid.y, grid.anchorX, grid.anchorY,
+                grid.x,
+                grid.y,
                 (origWidth - (slice?.offsetX ?: 0)) * grid.anchorX,
                 (origHeight - (slice?.offsetY ?: 0)) * grid.anchorY,
                 grid.scaleX,
                 grid.scaleY,
                 rotation = grid.rotation,
-                width = if (slice?.rotated == true) sprite.renderHeight else sprite.renderWidth,
-                height = if (slice?.rotated == true) sprite.renderWidth else sprite.renderHeight
+                width = (if (slice?.rotated == true) sprite.renderHeight else sprite.renderWidth) + (slice?.offsetX
+                    ?: 0),
+                height = (if (slice?.rotated == true) sprite.renderWidth else sprite.renderHeight) + (slice?.offsetY
+                    ?: 0)
             )
 
             renderBounds.bounds.set(_bounds.x, _bounds.y, _bounds.width, _bounds.height)
@@ -65,8 +68,6 @@ class SpriteRenderBoundsCalculationSystem :
     private fun calculateBounds(
         x: Float,
         y: Float,
-        anchorX: Float,
-        anchorY: Float,
         originX: Float,
         originY: Float,
         scaleX: Float,
@@ -77,8 +78,8 @@ class SpriteRenderBoundsCalculationSystem :
     ) {
         if (rotation.normalized.degrees ife 0f) {
             _bounds.let {
-                it.x = x - originX * scaleX + (width * (1f - anchorX) * scaleX)
-                it.y = y - originY * scaleY + (height * (1f - anchorY) * scaleY)
+                it.x = x - originX * scaleX
+                it.y = y - originY * scaleY
                 it.width = width * scaleX
                 it.height = height * scaleY
             }

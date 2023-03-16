@@ -25,10 +25,30 @@ class SpriteComponent(slice: TextureSlice? = null) : Component<SpriteComponent> 
         get() = if (overrideHeight) overriddenHeight else slice?.height?.toFloat() ?: 0f
 
     var overrideWidth = false
+        set(value) {
+            if (field == value) return
+            field = value
+            dirty = true
+        }
     var overrideHeight = false
+        set(value) {
+            if (field == value) return
+            field = value
+            dirty = true
+        }
 
     var overriddenWidth = 0f
+        set(value) {
+            if (field == value) return
+            field = value
+            dirty = true
+        }
     var overriddenHeight = 0f
+        set(value) {
+            if (field == value) return
+            field = value
+            dirty = true
+        }
 
     internal var dirty = false
 
