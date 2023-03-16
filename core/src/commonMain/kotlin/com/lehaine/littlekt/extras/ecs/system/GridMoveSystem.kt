@@ -169,7 +169,6 @@ class GridMoveSystem(
             }
         }
 
-
         move.velocityZ *= move.frictionZ
         if (abs(move.velocityZ) <= 0.0005f) {
             move.velocityZ = 0f
