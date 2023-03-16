@@ -10,7 +10,9 @@ import com.lehaine.littlekt.math.Mat3
 import com.lehaine.littlekt.math.MutableVec2f
 import com.lehaine.littlekt.math.Rect
 import com.lehaine.littlekt.math.geom.Angle
+import com.lehaine.littlekt.math.geom.degrees
 import com.lehaine.littlekt.math.geom.normalized
+import com.lehaine.littlekt.math.ife
 
 /**
  * @author Colton Daily
@@ -73,7 +75,7 @@ class SpriteRenderBoundsCalculationSystem :
         width: Float,
         height: Float
     ) {
-        if (rotation.normalized == Angle.ZERO) {
+        if (rotation.normalized.degrees ife 0f) {
             _bounds.let {
                 it.x = x - originX * scaleX + (width * (1f - anchorX) * scaleX)
                 it.y = y - originY * scaleY + (height * (1f - anchorY) * scaleY)
