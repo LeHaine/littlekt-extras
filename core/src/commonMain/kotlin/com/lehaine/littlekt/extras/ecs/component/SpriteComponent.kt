@@ -12,6 +12,8 @@ import com.lehaine.littlekt.graphics.g2d.TextureSlice
  * @date 3/9/2023
  */
 class SpriteComponent(slice: TextureSlice? = null) : Component<SpriteComponent> {
+    var layer: Int = 0
+
     var slice: TextureSlice? = slice
         set(value) {
             if (field == value) return

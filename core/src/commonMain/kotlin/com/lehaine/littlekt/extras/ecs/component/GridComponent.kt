@@ -8,9 +8,11 @@ import com.lehaine.littlekt.math.dist
 import com.lehaine.littlekt.math.geom.Angle
 import com.lehaine.littlekt.math.geom.radians
 import com.lehaine.littlekt.math.interpolate
+import com.lehaine.littlekt.util.seconds
 import kotlin.math.atan2
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.time.Duration
 
 /**
  * @author Colton Daily
@@ -122,6 +124,35 @@ class GridComponent(var gridCellSize: Float, var width: Float = gridCellSize, va
             field = value
             dirty = true
         }
+    private var _stretchX = 1f
+    private var _stretchY = 1f
+
+    var stretchX: Float
+        get() = _stretchX
+        set(value) {
+            _stretchX = value
+            _stretchY = 2 - value
+        }
+    var stretchY: Float
+        get() = _stretchY
+        set(value) {
+            _stretchX = 2 - value
+            _stretchY = value
+        }
+
+    /**
+     * The current entity x-scaling.
+     */
+    var entityScaleX = 1f
+
+    /**
+     * The current entity y-scaling.
+     */
+    var entityScaleY = 1f
+
+    var restoreSpeed: Float = 12f
+
+    var dir: Int = 1
 
     val attachX get() = (cx + xr) * gridCellSize
     val attachY get() = (cy + yr - zr) * gridCellSize
@@ -164,6 +195,13 @@ class GridComponent(var gridCellSize: Float, var width: Float = gridCellSize, va
     fun onPositionManuallyChanged() {
         lastPx = attachX
         lastPy = attachY
+    }
+
+    fun updateScaling(dt: Duration) {
+        entityScaleX = scaleX * dir * stretchX
+        entityScaleY = scaleY * stretchY
+        _stretchX += (1 - _stretchX) * min(1f, restoreSpeed * dt.seconds)
+        _stretchY += (1 - _stretchY) * min(1f, restoreSpeed * dt.seconds)
     }
 
     override fun type(): ComponentType<GridComponent> = GridComponent
