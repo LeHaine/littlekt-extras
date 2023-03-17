@@ -25,6 +25,7 @@ class GridMoveSystem(
 
         val gravity = entity.getOrNull(GravityComponent)
         val collision = entity.getOrNull(GridCollisionComponent)
+        val resolver = if (collision != null) entity.getOrNull(GridCollisionResolverComponent) else null
 
         grid.lastPx = grid.attachX
         grid.lastPy = grid.attachY
@@ -68,11 +69,14 @@ class GridMoveSystem(
                             grid.height,
                             grid.gridCellSize
                         )
-                        if (result != 0 && gridCollisionPool != null) {
-                            entity.configure {
-                                it += gridCollisionPool.alloc().apply {
-                                    axes = GridCollisionResultComponent.Axes.X
-                                    dir = result
+                        if (result != 0) {
+                            resolver?.resolver?.resolveXCollision(grid, move, collision, result)
+                            if (gridCollisionPool != null) {
+                                entity.configure {
+                                    it += gridCollisionPool.alloc().apply {
+                                        axes = GridCollisionResultComponent.Axes.X
+                                        dir = result
+                                    }
                                 }
                             }
                         }
@@ -114,11 +118,14 @@ class GridMoveSystem(
                             grid.height,
                             grid.gridCellSize
                         )
-                        if (result != 0 && gridCollisionPool != null) {
-                            entity.configure {
-                                it += gridCollisionPool.alloc().apply {
-                                    axes = GridCollisionResultComponent.Axes.Y
-                                    dir = result
+                        if (result != 0) {
+                            resolver?.resolver?.resolveYCollision(grid, move, collision, result)
+                            if (gridCollisionPool != null) {
+                                entity.configure {
+                                    it += gridCollisionPool.alloc().apply {
+                                        axes = GridCollisionResultComponent.Axes.Y
+                                        dir = result
+                                    }
                                 }
                             }
                         }
