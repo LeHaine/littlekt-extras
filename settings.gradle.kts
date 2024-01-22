@@ -10,5 +10,3 @@ pluginManagement {
 rootProject.name = "littlekt-extras"
 include("core")
 include("samples")
-
-enableFeaturePreview("VERSION_CATALOGS")

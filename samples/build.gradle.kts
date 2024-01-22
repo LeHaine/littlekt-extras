@@ -12,7 +12,7 @@ repositories {
 }
 
 kotlin {
-    android()
+    androidTarget()
     jvm {
         compilations {
             val main by getting
@@ -23,7 +23,7 @@ kotlin {
                     group = "package"
                     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
                     from(main.output.resourcesDir)
-                    destinationDir = File("$buildDir/publish")
+                    destinationDir = File("${layout.buildDirectory}/publish")
                 }
                 register<Jar>("packageFatJar") {
                     group = "package"
@@ -34,7 +34,7 @@ kotlin {
                     manifest {
                         attributes["Main-Class"] = mainClass
                     }
-                    destinationDirectory.set(File("$buildDir/publish/"))
+                    destinationDirectory.set(File("${layout.buildDirectory}/publish/"))
                     from(
                         main.runtimeDependencyFiles.map { if (it.isDirectory) it else zipTree(it) },
                         main.output.classesDirs

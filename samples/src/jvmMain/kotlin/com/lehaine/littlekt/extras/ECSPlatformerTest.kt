@@ -50,7 +50,6 @@ class ECSPlatformerTest(context: Context) : ContextListener(context) {
                 add(PlayerInputSystem(context.input))
 
                 add(GridMoveSystem(gridCollisionPool))
-                add(GridCollisionResolverSystem())
                 add(GridCollisionCleanupSystem(gridCollisionPool))
 
                 add(AnimationSystem())
@@ -138,13 +137,13 @@ class ECSPlatformerTest(context: Context) : ContextListener(context) {
             grid: GridComponent,
             move: MoveComponent,
             collision: GridCollisionComponent,
-            collisionResult: GridCollisionResultComponent
+            dir: Int
         ) {
-            if (collisionResult.dir == -1) {
+            if (dir == -1) {
                 grid.cx = 0
                 grid.xr = 0.3f
             }
-            if (collisionResult.dir == 1) {
+            if (dir == 1) {
                 grid.cx = gridWidth
                 grid.xr = 0.7f
             }
@@ -154,13 +153,13 @@ class ECSPlatformerTest(context: Context) : ContextListener(context) {
             grid: GridComponent,
             move: MoveComponent,
             collision: GridCollisionComponent,
-            collisionResult: GridCollisionResultComponent
+            dir: Int
         ) {
-            if (collisionResult.dir == -1) {
+            if (dir == -1) {
                 grid.cy = 0
                 grid.yr = 0.3f
             }
-            if (collisionResult.dir == 1) {
+            if (dir == 1) {
                 grid.cy = gridHeight
                 grid.yr = 0.7f
             }
