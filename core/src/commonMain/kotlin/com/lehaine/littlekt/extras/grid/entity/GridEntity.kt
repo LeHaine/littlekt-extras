@@ -63,8 +63,23 @@ open class GridEntity(val gridCellSize: Float) {
     var width: Float = gridCellSize
     var height: Float = gridCellSize
 
+    /**
+     * Takes the smallest of either [width] or [height] and halves it.
+     */
     val innerRadius get() = min(width, height) * ppuInv * 0.5f
+
+    /**
+     * Takes the largest of either [width] or [height] and halves it.
+     */
     val outerRadius get() = max(width, height) * ppuInv * 0.5f
+
+    /**
+     * The radius for the smallest encompassing circle for the rectangle. Used for SAT Collision checks.
+     *
+     * **Note**: this does use the Pythagorean theorem but rather an approximation formula. In other words, it doesn't
+     * calculate a square root. This is good enough for our purposes.
+     */
+    val encompassingRadius get() = (7f / 8f * max(width, height) + min(width, height) * 0.5f) * ppuInv * 0.5f
 
     var interpolatePixelPosition: Boolean = true
     var lastPx: Float = 0f
@@ -285,7 +300,7 @@ open class GridEntity(val gridCellSize: Float) {
     fun isCollidingWith(from: GridEntity, useSat: Boolean = false): Boolean {
         if (useSat) {
             if (rotation != 0.radians || from.rotation != 0.radians) {
-                if (!isCollidingWithOuterCircle(from)) return false
+                if (!isCollidingWithEncompassingCircle(from)) return false
                 return performSAT(from.vertices)
             }
         }
@@ -317,6 +332,9 @@ open class GridEntity(val gridCellSize: Float) {
 
     fun isCollidingWithOuterCircle(from: GridEntity): Boolean =
         isCollidingWithRadius(outerRadius, from, from.outerRadius)
+
+    fun isCollidingWithEncompassingCircle(from: GridEntity): Boolean =
+        isCollidingWithRadius(encompassingRadius, from, from.encompassingRadius)
 
     fun isCollidingWithRadius(radius: Float, from: GridEntity, fromRadius: Float): Boolean {
         val dist = radius + fromRadius

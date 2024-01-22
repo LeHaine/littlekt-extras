@@ -29,6 +29,7 @@ class CollisionTest(context: Context) : FixedTimeContextListener(context) {
     val player = PlayerEntity()
 
     val greenBits = Color.GREEN.toFloatBits()
+    val yellowBits = Color.YELLOW.toFloatBits()
     val cyanBits = Color.CYAN.toFloatBits()
     val redBits = Color.RED.toFloatBits()
 
@@ -50,7 +51,13 @@ class CollisionTest(context: Context) : FixedTimeContextListener(context) {
             shapeRenderer.circle(
                 centerX,
                 centerY,
-                outerRadius.toFloat(),
+                innerRadius,
+                color = yellowBits
+            )
+            shapeRenderer.circle(
+                centerX,
+                centerY,
+                encompassingRadius,
                 color = greenBits
             )
         }
