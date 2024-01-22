@@ -1,7 +1,6 @@
 package com.lehaine.littlekt.extras.ecs.logic.collision.resolver
 
 import com.lehaine.littlekt.extras.ecs.component.GridCollisionComponent
-import com.lehaine.littlekt.extras.ecs.component.GridCollisionResultComponent
 import com.lehaine.littlekt.extras.ecs.component.GridComponent
 import com.lehaine.littlekt.extras.ecs.component.MoveComponent
 import com.lehaine.littlekt.extras.ecs.logic.collision.checker.CollisionChecker
@@ -25,12 +24,12 @@ class ObliqueCollisionResolver : CollisionResolver() {
         grid: GridComponent,
         move: MoveComponent,
         collision: GridCollisionComponent,
-        collisionResult: GridCollisionResultComponent
+        dir:Int
     ) {
         val checker = collision.checker
         if (checker is ObliqueCollisionChecker) {
             // check collision left side
-            if (collisionResult.dir == -1) {
+            if (dir == -1) {
                 grid.xr = checker.leftCollisionRatio
                 move.velocityX *= 0.5f
 
@@ -66,7 +65,7 @@ class ObliqueCollisionResolver : CollisionResolver() {
             }
 
             // check collision right side
-            if (collisionResult.dir == 1) {
+            if (dir == 1) {
                 grid.xr = checker.rightCollisionRatio
                 move.velocityX *= 0.5f
 
@@ -102,7 +101,7 @@ class ObliqueCollisionResolver : CollisionResolver() {
 
             }
         } else {
-            super.resolveXCollision(grid, move, collision, collisionResult)
+            super.resolveXCollision(grid, move, collision, dir)
         }
     }
 
@@ -110,14 +109,14 @@ class ObliqueCollisionResolver : CollisionResolver() {
         grid: GridComponent,
         move: MoveComponent,
         collision: GridCollisionComponent,
-        collisionResult: GridCollisionResultComponent
+        dir:Int
     ) {
         val checker = collision.checker
         if (checker is ObliqueCollisionChecker) {
             val heightCoordDiff =
                 if (checker.useTopCollisionRatio) checker.topCollisionRatio else floor(grid.height / grid.gridCellSize)
             // check top collision
-            if (collisionResult.dir == -1) {
+            if (dir == -1) {
                 grid.yr = heightCoordDiff
                 move.velocityY = 0f
                 // check if player is stuck on wall / corner and help them by nudging them off it
@@ -152,7 +151,7 @@ class ObliqueCollisionResolver : CollisionResolver() {
             }
 
             // check bottom collision
-            if (collisionResult.dir == 1) {
+            if (dir == 1) {
                 grid.yr = checker.bottomCollisionRatio
                 move.velocityY = 0f
 
@@ -187,7 +186,7 @@ class ObliqueCollisionResolver : CollisionResolver() {
                 }
             }
         } else {
-            super.resolveYCollision(grid, move, collision, collisionResult)
+            super.resolveYCollision(grid, move, collision, dir)
         }
     }
 

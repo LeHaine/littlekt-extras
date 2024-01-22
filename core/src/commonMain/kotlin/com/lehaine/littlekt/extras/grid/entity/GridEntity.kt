@@ -63,8 +63,8 @@ open class GridEntity(val gridCellSize: Float) {
     var width: Float = gridCellSize
     var height: Float = gridCellSize
 
-    val innerRadius get() = min(width, height) * ppuInv * 0.5
-    val outerRadius get() = max(width, height) * ppuInv * 0.5
+    val innerRadius get() = min(width, height) * ppuInv * 0.5f
+    val outerRadius get() = max(width, height) * ppuInv * 0.5f
 
     var interpolatePixelPosition: Boolean = true
     var lastPx: Float = 0f
@@ -312,13 +312,14 @@ open class GridEntity(val gridCellSize: Float) {
         return true
     }
 
-    fun isCollidingWithInnerCircle(from: GridEntity): Boolean {
-        val dist = innerRadius + from.innerRadius
-        return distSqr(centerX, centerY, from.centerX, from.centerY) <= dist * dist
-    }
+    fun isCollidingWithInnerCircle(from: GridEntity): Boolean =
+        isCollidingWithRadius(innerRadius, from, from.innerRadius)
 
-    fun isCollidingWithOuterCircle(from: GridEntity): Boolean {
-        val dist = outerRadius + from.outerRadius
+    fun isCollidingWithOuterCircle(from: GridEntity): Boolean =
+        isCollidingWithRadius(outerRadius, from, from.outerRadius)
+
+    fun isCollidingWithRadius(radius: Float, from: GridEntity, fromRadius: Float): Boolean {
+        val dist = radius + fromRadius
         return distSqr(centerX, centerY, from.centerX, from.centerY) <= dist * dist
     }
 

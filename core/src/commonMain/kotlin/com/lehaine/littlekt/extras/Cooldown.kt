@@ -93,6 +93,14 @@ class Cooldown {
 
     fun remove(name: String) = removeTimer(name)
 
+    fun removeAll() {
+        timersNameToTimerInstance.clear()
+        timers.removeAll {
+            cooldownTimerPool.free(it)
+            true
+        }
+    }
+
     fun ratio(name: String): Float {
         return timersNameToTimerInstance[name]?.ratio ?: 0f
     }
