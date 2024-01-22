@@ -1,11 +1,11 @@
 [versions]
-plugin-android = "7.2.2"
-plugin-kotlin = "1.8.10"
+plugin-android = "7.3.1"
+plugin-kotlin = "1.9.21"
 
-kotlinx-coroutines = "1.6.4"
+kotlinx-coroutines = "1.8.0-RC2"
 fleks = "2.3"
 
-littlekt = "0.7.0.a315f96-SNAPSHOT"
+littlekt = "0.8.1"
 
 [libraries]
 plugin-android = { module = "com.android.tools.build:gradle", version.ref = "plugin-android" }
