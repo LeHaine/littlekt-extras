@@ -11,7 +11,7 @@ import kotlin.reflect.KClass
 /**
  * A [FixedTimeContextListener] that handles commonly loading assets and preparing assets. Handles scene switching and caching.
  * @param context the context instance
- * @param firstScene the initial scene the was be used immediately by the context.
+ * @param firstScene the initial scene to be used immediately by the context.
  * @param SceneType the common base interface or class of all scenes.
  * @see FixedScene
  * @author Colt Daily
@@ -24,7 +24,6 @@ open class FixedGame<SceneType : FixedScene>(context: Context, firstScene: Scene
     val input get() = context.input
     val stats get() = context.stats
     val gl get() = context.gl
-    val logger get() = context.logger
     val resourcesVfs get() = context.resourcesVfs
     val storageVfs get() = context.storageVfs
     val vfs get() = context.vfs
@@ -200,7 +199,7 @@ open class FixedGame<SceneType : FixedScene>(context: Context, firstScene: Scene
     /**
      * Removes the cached instance of [Scene] of the selected type. Note that this method does not dispose
      * of the scene and will not affect [shownScene].
-     * @param Type concreate class of the [Scene] instance.
+     * @param Type concrete class of the [Scene] instance.
      * @return removed instance of [Scene] extending passed [Type] if it was registered; otherwise `null`.
      * @see addScene
      */
@@ -209,7 +208,7 @@ open class FixedGame<SceneType : FixedScene>(context: Context, firstScene: Scene
     /**
      * Removes the cached instance of [Scene] of the selected type. Note that this method does not dispose
      * of the scene and will not affect [shownScene].
-     * @param Type concreate class of the [Scene] instance.
+     * @param Type concrete class of the [Scene] instance.
      * @return removed instance of [Scene] extending passed [Type] if it was registered; otherwise `null`.
      * @see addScene
      */
@@ -219,14 +218,14 @@ open class FixedGame<SceneType : FixedScene>(context: Context, firstScene: Scene
 
     /**
      * Checks if the scene of the given type is registered.
-     * @param Type concreate class of scene implementation.
+     * @param Type concrete class of scene implementation.
      * @return true if a [Scene] is registered with selected type; otherwise false.
      */
     inline fun <reified Type : SceneType> containsScene(): Boolean = containsScene(Type::class)
 
     /**
      * Checks if the scene of the given type is registered.
-     * @param Type concreate class of scene implementation.
+     * @param Type concrete class of scene implementation.
      * @return true if a [Scene] is registered with selected type; otherwise false.
      */
     open fun <Type : SceneType> containsScene(type: KClass<Type>): Boolean = scenes.containsKey(type)
