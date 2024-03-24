@@ -40,7 +40,7 @@ class ECSTest(context: Context) : ContextListener(context) {
         val viewport = ExtendViewport(240, 135)
         val gridCollisionPool = Pool { GridCollisionResultComponent(GridCollisionResultComponent.Axes.X, 0) }
 
-        val world = world {
+        val world = configureWorld {
             systems {
                 add(GridMoveSystem(gridCollisionPool))
                 add(GridCollisionCleanupSystem(gridCollisionPool))

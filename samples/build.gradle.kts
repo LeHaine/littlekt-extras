@@ -2,8 +2,8 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinJsCompilerType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
-    kotlin("multiplatform")
-    id("com.android.application")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.multiplatform)
 }
 
 repositories {
@@ -47,7 +47,7 @@ kotlin {
             }
         }
         compilations.all {
-            kotlinOptions.jvmTarget = "11"
+            kotlinOptions.jvmTarget = "17"
         }
         testRuns["test"].executionTask.configure {
             useJUnit()
@@ -120,6 +120,7 @@ kotlin {
 }
 
 android {
+    namespace = "com.lehaine.littlekt.extras.samples"
     sourceSets["main"].apply {
         manifest.srcFile("src/androidMain/AndroidManifest.xml")
         assets.srcDirs("src/commonMain/resources")
