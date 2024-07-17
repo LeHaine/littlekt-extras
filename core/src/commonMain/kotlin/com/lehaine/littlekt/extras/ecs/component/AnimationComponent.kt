@@ -2,9 +2,9 @@ package com.lehaine.littlekt.extras.ecs.component
 
 import com.github.quillraven.fleks.Component
 import com.github.quillraven.fleks.ComponentType
-import com.lehaine.littlekt.graphics.g2d.Animation
-import com.lehaine.littlekt.graphics.g2d.AnimationPlayer
-import com.lehaine.littlekt.graphics.g2d.TextureSlice
+import com.littlekt.graphics.g2d.Animation
+import com.littlekt.graphics.g2d.AnimationPlayer
+import com.littlekt.graphics.g2d.TextureSlice
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 

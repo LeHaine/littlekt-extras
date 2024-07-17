@@ -1,10 +1,9 @@
 package com.lehaine.littlekt.extras
 
-import com.lehaine.littlekt.util.datastructure.Pool
-import com.lehaine.littlekt.util.fastForEach
+import com.littlekt.util.datastructure.Pool
+import com.littlekt.util.datastructure.fastForEach
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
-
 
 private data class CooldownTimer(
     var time: Duration,
@@ -84,7 +83,6 @@ class Cooldown {
         }
         addTimer(name, timer)
     }
-
 
     fun timeout(name: String, time: Duration, callback: () -> Unit = { }) =
         interval(name, time, callback)

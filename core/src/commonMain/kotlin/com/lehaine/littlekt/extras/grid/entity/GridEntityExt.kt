@@ -1,8 +1,8 @@
 package com.lehaine.littlekt.extras.grid.entity
 
-import com.lehaine.littlekt.math.castRay
-import com.lehaine.littlekt.math.dist
-import com.lehaine.littlekt.math.geom.radians
+import com.littlekt.math.castRay
+import com.littlekt.math.dist
+import com.littlekt.math.geom.radians
 import kotlin.math.atan2
 import kotlin.time.Duration
 

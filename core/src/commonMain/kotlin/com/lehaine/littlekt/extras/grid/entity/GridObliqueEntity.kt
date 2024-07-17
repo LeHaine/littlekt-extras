@@ -11,7 +11,7 @@ import kotlin.math.floor
 open class GridObliqueEntity(level: GameLevel<*>, gridCellSize: Float) : GridLevelEntity(level, gridCellSize) {
     override var rightCollisionRatio: Float = 0.8f
     override var leftCollisionRatio: Float = 0.2f
-    override var bottomCollisionRatio: Float = 1f
+    override var bottomCollisionRatio: Float = 0f
     override var topCollisionRatio: Float = 0.3f
     override var useTopCollisionRatio: Boolean = true
 
@@ -65,23 +65,9 @@ open class GridObliqueEntity(level: GameLevel<*>, gridCellSize: Float) : GridLev
 
     override fun checkYCollision() {
         val heightCoordDiff = if (useTopCollisionRatio) topCollisionRatio else floor(height / gridCellSize)
-        if (level.hasCollision(cx, cy - 1) && yr <= heightCoordDiff) {
+        if (level.hasCollision(cx, cy + 1) && yr >= heightCoordDiff) {
             yr = heightCoordDiff
             velocityY *= 0.5f
-
-            // check if player is stuck on wall / corner and help them by nudging them off it
-            if (shouldNudge(xr, wallDeltaLeftCollisionRatio, -1, 1, velocityX, true)) {
-                velocityX -= wallSlideDelta // todo fix this calculation
-            }
-            if (shouldNudge(xr, wallDeltaRightCollisionRatio, 1, 1, velocityX, false)) {
-                velocityX += wallSlideDelta
-            }
-
-            onLevelCollision(0, -1)
-        }
-        if (level.hasCollision(cx, cy + 1) && yr >= bottomCollisionRatio) {
-            velocityY *= 0.5f
-            yr = bottomCollisionRatio
 
             // check if player is stuck on wall / corner and help them by nudging them off it
             if (shouldNudge(xr, wallDeltaLeftCollisionRatio, -1, -1, velocityX, true)) {
@@ -92,6 +78,20 @@ open class GridObliqueEntity(level: GameLevel<*>, gridCellSize: Float) : GridLev
             }
 
             onLevelCollision(0, 1)
+        }
+        if (level.hasCollision(cx, cy - 1) && yr <= bottomCollisionRatio) {
+            velocityY *= 0.5f
+            yr = bottomCollisionRatio
+
+            // check if player is stuck on wall / corner and help them by nudging them off it
+            if (shouldNudge(xr, wallDeltaLeftCollisionRatio, -1, 1, velocityX, true)) {
+                velocityX -= wallSlideDelta // todo fix this calculation
+            }
+            if (shouldNudge(xr, wallDeltaRightCollisionRatio, 1, 1, velocityX, false)) {
+                velocityX += wallSlideDelta
+            }
+
+            onLevelCollision(0, -1)
         }
     }
 

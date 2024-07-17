@@ -6,18 +6,15 @@ repositories {
 }
 
 plugins {
-    alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.multiplatform)
 }
 
 kotlin {
-    androidTarget {
-        publishLibraryVariants("release", "debug")
-    }
-
+    applyDefaultHierarchyTemplate()
     jvm {
         compilations.all {
-            kotlinOptions.jvmTarget = "17"
+            kotlinOptions.jvmTarget = "21"
+            compileJavaTaskProvider?.get()?.options?.compilerArgs?.add("--enable-preview")
         }
         testRuns["test"].executionTask.configure {
             useJUnit()
@@ -61,7 +58,6 @@ kotlin {
         val jvmTest by getting
         val jsMain by getting
         val jsTest by getting
-        val androidMain by getting
 
         all {
             languageSettings.apply {
@@ -70,24 +66,6 @@ kotlin {
                 optIn("kotlin.time.ExperimentalTime")
             }
         }
-    }
-}
-
-android {
-    namespace = "com.lehaine.littlekt.extras"
-    sourceSets["main"].apply {
-        manifest.srcFile("src/androidMain/AndroidManifest.xml")
-        assets.srcDirs("src/commonMain/resources")
-    }
-    compileSdk = (findProperty("android.compileSdk") as String).toInt()
-
-    defaultConfig {
-        minSdk = (findProperty("android.minSdk") as String).toInt()
-        targetSdk = (findProperty("android.targetSdk") as String).toInt()
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
     }
 }
 

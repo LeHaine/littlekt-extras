@@ -1,11 +1,10 @@
 package com.lehaine.littlekt.extras.renderable
 
-import com.lehaine.littlekt.graphics.Camera
-import com.lehaine.littlekt.graphics.g2d.Batch
-import com.lehaine.littlekt.graphics.g2d.TextureSlice
-import com.lehaine.littlekt.graphics.g2d.shape.ShapeRenderer
-import com.lehaine.littlekt.graphics.toFloatBits
-import com.lehaine.littlekt.math.Rect
+import com.littlekt.graphics.Camera
+import com.littlekt.graphics.g2d.Batch
+import com.littlekt.graphics.g2d.TextureSlice
+import com.littlekt.graphics.g2d.shape.ShapeRenderer
+import com.littlekt.math.Rect
 
 /**
  * @author Colton Daily
@@ -17,10 +16,10 @@ open class Sprite : Renderable2D() {
         get() {
             if (boundsDirty) {
                 val origWidth =
-                    (if (slice?.rotated == true) slice?.originalHeight?.toFloat() else slice?.originalWidth?.toFloat())
+                    (if (slice?.rotated == true) slice?.actualHeight?.toFloat() else slice?.actualWidth?.toFloat())
                         ?: renderWidth
                 val origHeight =
-                    (if (slice?.rotated == true) slice?.originalWidth?.toFloat() else slice?.originalHeight?.toFloat())
+                    (if (slice?.rotated == true) slice?.actualWidth?.toFloat() else slice?.actualHeight?.toFloat())
                         ?: renderHeight
                 calculateBounds(
                     position = position,
@@ -63,14 +62,14 @@ open class Sprite : Renderable2D() {
     override fun render(batch: Batch, camera: Camera, shapeRenderer: ShapeRenderer) {
         slice?.let { slice ->
             blendMode?.let {
-                batch.setBlendFunction(it)
+                batch.setBlendState(it)
             }
             batch.draw(
                 slice,
                 x + localOffsetX,
                 y + localOffsetY,
-                anchorX * slice.originalWidth,
-                anchorY * slice.originalHeight,
+                anchorX * slice.actualWidth,
+                anchorY * slice.actualHeight,
                 width = renderWidth,
                 height = renderHeight,
                 scaleX = scaleX * ppuInv,
@@ -78,7 +77,7 @@ open class Sprite : Renderable2D() {
                 flipX = flipX,
                 flipY = flipY,
                 rotation = rotation,
-                colorBits = color.toFloatBits()
+                color = color
             )
         }
     }

@@ -1,7 +1,7 @@
 package com.lehaine.littlekt.extras.ecs.event
 
-import com.lehaine.littlekt.Disposable
-import com.lehaine.littlekt.util.fastForEach
+import com.littlekt.Releasable
+import com.littlekt.util.datastructure.fastForEach
 import kotlin.reflect.KClass
 
 
@@ -9,7 +9,7 @@ import kotlin.reflect.KClass
  * @author Colton Daily
  * @date 3/9/2023
  */
-class EventBus : Disposable {
+class EventBus : Releasable {
     private val closeables = mutableListOf<Closeable>()
     private val perClassHandlers = HashMap<KClass<*>, MutableList<(Any) -> Unit>>()
 
@@ -37,7 +37,7 @@ class EventBus : Disposable {
         return register(T::class, handler)
     }
 
-    override fun dispose() {
+    override fun release() {
         closeables.fastForEach { it.invoke() }
     }
 

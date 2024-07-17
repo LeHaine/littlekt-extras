@@ -2,18 +2,18 @@ package com.lehaine.littlekt.extras.grid.entity
 
 import com.lehaine.littlekt.extras.Cooldown
 import com.lehaine.littlekt.extras.renderable.AnimatedSprite
-import com.lehaine.littlekt.graphics.Camera
-import com.lehaine.littlekt.graphics.g2d.Batch
-import com.lehaine.littlekt.graphics.g2d.shape.ShapeRenderer
-import com.lehaine.littlekt.math.MutableVec2f
-import com.lehaine.littlekt.math.Vec2f
-import com.lehaine.littlekt.math.distSqr
-import com.lehaine.littlekt.math.geom.Angle
-import com.lehaine.littlekt.math.geom.cosine
-import com.lehaine.littlekt.math.geom.radians
-import com.lehaine.littlekt.math.geom.sine
-import com.lehaine.littlekt.math.interpolate
-import com.lehaine.littlekt.util.seconds
+import com.littlekt.graphics.Camera
+import com.littlekt.graphics.g2d.Batch
+import com.littlekt.graphics.g2d.shape.ShapeRenderer
+import com.littlekt.math.MutableVec2f
+import com.littlekt.math.Vec2f
+import com.littlekt.math.distSqr
+import com.littlekt.math.geom.Angle
+import com.littlekt.math.geom.cosine
+import com.littlekt.math.geom.radians
+import com.littlekt.math.geom.sine
+import com.littlekt.math.interpolate
+import com.littlekt.util.seconds
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -32,32 +32,95 @@ fun gridEntity(gridCellSize: Float, callback: @EntityDslMarker GridEntity.() -> 
     return GridEntity(gridCellSize).also(callback)
 }
 
+/**
+ * An entity that uses a Grid/Cell positioning system.
+ */
 open class GridEntity(val gridCellSize: Float) {
+
+    /**
+     * The [AnimatedSprite] of this entity.
+     */
     val sprite = AnimatedSprite()
 
+    /**
+     * The current sprite anchor on the x-axis. Used for rendering and positioning calculations.
+     */
     var anchorX: Float
         get() = sprite.anchorX
         set(value) {
             sprite.anchorX = value
         }
+
+    /**
+     * The current sprite anchor on the y-axis. Used for rendering and positioning calculations.
+     */
     var anchorY: Float
         get() = sprite.anchorY
         set(value) {
             sprite.anchorY = value
         }
 
+    /**
+     * The grid-x position
+     */
     var cx: Int = 0
-    var cy: Int = 0
-    var xr: Float = 0.5f
-    var yr: Float = 1f
 
+    /**
+     * The grid-y position
+     */
+    var cy: Int = 0
+
+    /**
+     * The x-ratio of how far through the current grid cell the entity is.
+     * E.g. `0.5` is halfway through the cell. `1f` is on the right side and `0f` is on the left side.
+     */
+    var xr: Float = 0.5f
+
+    /**
+     * The y-ratio of how far through the current grid cell the entity is.
+     * E.g. `0.5` is halfway through the cell. `1f` is on the top side and `0f` is bottom side.
+     */
+    var yr: Float = 0f
+
+    /**
+     * The force of gravity on the x-axis.
+     */
     var gravityX: Float = 0f
+
+    /**
+     * The force of gravity on the y-axis.
+     */
     var gravityY: Float = 0f
+
+    /**
+     * The value to multiply [gravityX] and [gravityY] by in order to increase or decrease gravity forces.
+     */
     var gravityMultiplier: Float = 1f
+
+    /**
+     * The velocity on the x-axis.
+     */
     var velocityX: Float = 0f
+
+    /**
+     * The velocity on the y-axis.
+     */
     var velocityY: Float = 0f
+
+    /**
+     * The friction amount on the x-axis, which affects [velocityX].
+     */
     var frictionX: Float = 0.82f
+
+    /**
+     * The friction amount on the y-axis, which affect [velocityY]
+     */
     var frictionY: Float = 0.82f
+
+    /**
+     * Any movement greater than this value will increase the number of steps checked between movement.
+     * The more steps will break down the movement into smaller pieces to avoid skipping grid collissions.
+     */
     var maxGridMovementPercent: Float = 0.33f
 
     var width: Float = gridCellSize
@@ -102,29 +165,49 @@ open class GridEntity(val gridCellSize: Float) {
         }
 
     /**
-     * The current entity x-scaling.
+     * Extra scaling that is used to calculate [scaleX]
      */
-    var entityScaleX = 1f
+    var extraScaleX = 1f
 
     /**
-     * The current entity y-scaling.
+     * Extra scaling that is used to calculate [scaleY].
      */
-    var entityScaleY = 1f
+    var extraScaleY = 1f
 
+    /**
+     * How fast the entity restores itself from beeing streched with [stretchX] and [stretchY].
+     */
     var restoreSpeed: Float = 12f
 
+    /**
+     * The horizontal direction the entity is current facing. Typically `-1` for **left** and `1` for **right**.
+     */
     var dir: Int = 1
 
+    /**
+     * Pixels-per-unit, defaults to 1f.
+     */
     var ppu: Float = 1f
         set(value) {
             field = value
             sprite.ppu = value
         }
 
+    /**
+     * The inverse of [ppu].
+     */
     val ppuInv: Float get() = 1f / ppu
 
+    /**
+     * The ratio to interpolate the last position to the new position.
+     * This will need updated before each update.
+     */
     var fixedProgressionRatio = 1f
 
+    /**
+     * The current x-position of the entity. If [interpolatePixelPosition] is `true`, then this value is interpolated from
+     * [lastPx] to [attachX] using the [fixedProgressionRatio]. Otherwise, it just returned [attachX].
+     */
     val x: Float
         get() {
             return if (interpolatePixelPosition) {
@@ -134,6 +217,10 @@ open class GridEntity(val gridCellSize: Float) {
             }
         }
 
+    /**
+     * The current y-position of the entity. If [interpolatePixelPosition] is `true`, then this value is interpolated from
+     * [lastPy] to [attachY] using the [fixedProgressionRatio]. Otherwise, it just returned [attachY].
+     */
     val y: Float
         get() {
             return if (interpolatePixelPosition) {
@@ -143,33 +230,67 @@ open class GridEntity(val gridCellSize: Float) {
             }
         }
 
+    /**
+     * The x-scale of the entity.
+     */
     var scaleX: Float = 1f
+
+    /**
+     * The y-scale of the entity.
+     */
     var scaleY: Float = 1f
+
+    /**
+     * The rotation of the entity.
+     */
     var rotation: Angle = Angle.ZERO
 
+    /**
+     * The x-position of the attachment of the entity. The value is calculated from the grid position: [cx] and [xr].
+     */
     open val attachX get() = ((cx + xr) * gridCellSize) * ppuInv
+
+    /**
+     * The y-position of the attachment of the entity. The value is calculated from the grid position: [cy] and [yr].
+     */
     open val attachY get() = ((cy + yr) * gridCellSize) * ppuInv
     val centerX get() = attachX + (0.5f - anchorX) * width
     val centerY get() = attachY + (0.5f - anchorY) * height
-    val top get() = attachY - anchorY * height * ppuInv
+    val top get() = attachY + (1 - anchorY) * height * ppuInv
     val right get() = attachX + (1 - anchorX) * width * ppuInv
-    val bottom get() = attachY + (1 - anchorY) * height * ppuInv
+    val bottom get() = attachY - anchorY * height * ppuInv
     val left get() = attachX - anchorX * width * ppuInv
 
     private val _topLeft = MutableVec2f()
+
+    /**
+     * Calculates the top-left vertex of the entity, used for SAT collision checking.
+     */
     val topLeft: Vec2f
         get() = _topLeft.set(left, top).calculateVertex(centerX, centerY, rotation)
 
     private val _bottomLeft = MutableVec2f()
+
+    /**
+     * Calculates the bottom-left vertex of the entity, used for SAT collision checking.
+     */
     val bottomLeft: Vec2f
         get() = _bottomLeft.set(left, bottom).calculateVertex(centerX, centerY, rotation)
 
     private val _bottomRight = MutableVec2f()
+
+    /**
+     * Calculates the bottom-right vertex of the entity, used for SAT collision checking.
+     */
     val bottomRight: Vec2f
         get() = _bottomRight.set(right, bottom).calculateVertex(centerX, centerY, rotation)
 
     private val _topRight = MutableVec2f()
-    private val topRight: Vec2f
+
+    /**
+     * Calculates the top-right vertex of the entity, used for SAT collision checking.
+     */
+    val topRight: Vec2f
         get() = _topRight.set(right, top).calculateVertex(centerX, centerY, rotation)
 
     private val _vertices = MutableList(4) { Vec2f(0f) }
@@ -208,8 +329,7 @@ open class GridEntity(val gridCellSize: Float) {
         anchorX = 0.5f
         anchorY = 1f
 
-        @Suppress("LeakingThis")
-        updateGridPosition()
+        @Suppress("LeakingThis") updateGridPosition()
     }
 
     open fun preUpdate(dt: Duration) {
@@ -227,12 +347,12 @@ open class GridEntity(val gridCellSize: Float) {
     open fun postUpdate(dt: Duration) {
         sprite.x = x
         sprite.y = y
-        entityScaleX = scaleX * dir * stretchX
-        entityScaleY = scaleY * stretchY
+        extraScaleX = scaleX * dir * stretchX
+        extraScaleY = scaleY * stretchY
         _stretchX += (1 - _stretchX) * min(1f, restoreSpeed * dt.seconds)
         _stretchY += (1 - _stretchY) * min(1f, restoreSpeed * dt.seconds)
-        sprite.scaleX = entityScaleX
-        sprite.scaleY = entityScaleY
+        sprite.scaleX = extraScaleX
+        sprite.scaleY = extraScaleY
         sprite.rotation = rotation
     }
 
@@ -315,16 +435,12 @@ open class GridEntity(val gridCellSize: Float) {
             return false
         }
 
-        val ly = top
-        val ry = bottom
-        val ly2 = from.top
-        val ry2 = from.bottom
+        val ly = bottom
+        val ry = top
+        val ly2 = from.bottom
+        val ry2 = from.top
 
-        if (ly >= ry2 || ly2 >= ry) {
-            return false
-        }
-
-        return true
+        return !(ly >= ry2 || ly2 >= ry)
     }
 
     fun isCollidingWithInnerCircle(from: GridEntity): Boolean =

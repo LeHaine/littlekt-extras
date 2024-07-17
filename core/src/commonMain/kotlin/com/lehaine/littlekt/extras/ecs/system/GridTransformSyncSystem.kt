@@ -4,7 +4,7 @@ import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.IteratingSystem
 import com.github.quillraven.fleks.World.Companion.family
 import com.lehaine.littlekt.extras.ecs.component.GridComponent
-import com.lehaine.littlekt.util.seconds
+import com.littlekt.util.seconds
 
 /**
  * @author Colton Daily

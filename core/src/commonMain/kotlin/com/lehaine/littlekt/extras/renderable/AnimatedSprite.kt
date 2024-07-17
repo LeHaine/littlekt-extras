@@ -1,16 +1,10 @@
 package com.lehaine.littlekt.extras.renderable
 
-import com.lehaine.littlekt.graph.node.Node
-import com.lehaine.littlekt.graph.node.addTo
-import com.lehaine.littlekt.graph.node.annotation.SceneGraphDslMarker
-import com.lehaine.littlekt.graphics.g2d.Animation
-import com.lehaine.littlekt.graphics.g2d.AnimationPlayer
-import com.lehaine.littlekt.graphics.g2d.TextureSlice
-import com.lehaine.littlekt.util.SingleSignal
-import com.lehaine.littlekt.util.signal1v
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
+import com.lehaine.littlekt.extras.util.SingleSignal
+import com.lehaine.littlekt.extras.util.signal1v
+import com.littlekt.graphics.g2d.Animation
+import com.littlekt.graphics.g2d.AnimationPlayer
+import com.littlekt.graphics.g2d.TextureSlice
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 

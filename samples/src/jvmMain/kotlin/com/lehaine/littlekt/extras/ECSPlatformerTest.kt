@@ -1,31 +1,30 @@
 package com.lehaine.littlekt.extras
 
 import com.github.quillraven.fleks.*
-import com.lehaine.littlekt.Context
-import com.lehaine.littlekt.ContextListener
-import com.lehaine.littlekt.createLittleKtApp
 import com.lehaine.littlekt.extras.ecs.component.*
 import com.lehaine.littlekt.extras.ecs.logic.collision.checker.CollisionChecker
 import com.lehaine.littlekt.extras.ecs.logic.collision.checker.GroundChecker
 import com.lehaine.littlekt.extras.ecs.logic.collision.resolver.CollisionResolver
 import com.lehaine.littlekt.extras.ecs.system.*
-import com.lehaine.littlekt.file.vfs.readTexture
-import com.lehaine.littlekt.graphics.Camera
-import com.lehaine.littlekt.graphics.Color
-import com.lehaine.littlekt.graphics.g2d.Batch
-import com.lehaine.littlekt.graphics.g2d.SpriteBatch
-import com.lehaine.littlekt.graphics.g2d.use
-import com.lehaine.littlekt.graphics.gl.ClearBufferMask
-import com.lehaine.littlekt.graphics.slice
-import com.lehaine.littlekt.graphics.toFloatBits
-import com.lehaine.littlekt.input.Input
-import com.lehaine.littlekt.input.Key
-import com.lehaine.littlekt.math.Rect
-import com.lehaine.littlekt.util.calculateViewBounds
-import com.lehaine.littlekt.util.datastructure.Pool
-import com.lehaine.littlekt.util.seconds
-import com.lehaine.littlekt.util.viewport.ExtendViewport
-import com.lehaine.littlekt.util.viewport.Viewport
+import com.littlekt.Context
+import com.littlekt.ContextListener
+import com.littlekt.createLittleKtApp
+import com.littlekt.file.vfs.readTexture
+import com.littlekt.graphics.Camera
+import com.littlekt.graphics.Color
+import com.littlekt.graphics.g2d.Batch
+import com.littlekt.graphics.g2d.SpriteBatch
+import com.littlekt.graphics.g2d.use
+import com.littlekt.graphics.slice
+import com.littlekt.graphics.webgpu.*
+import com.littlekt.input.Input
+import com.littlekt.input.Key
+import com.littlekt.log.Logger
+import com.littlekt.math.Rect
+import com.littlekt.util.calculateViewBounds
+import com.littlekt.util.datastructure.Pool
+import com.littlekt.util.seconds
+import com.littlekt.util.viewport.ExtendViewport
 
 /**
  * @author Colton Daily
@@ -37,7 +36,7 @@ class ECSPlatformerTest(context: Context) : ContextListener(context) {
 
     override suspend fun Context.start() {
         val heroIdle = resourcesVfs["test/heroIdle0.png"].readTexture().slice()
-        val batch = SpriteBatch(this)
+        val batch = SpriteBatch(context.graphics.device, context.graphics, graphics.preferredFormat)
         val viewport = ExtendViewport(240, 135)
         val gridCollisionPool = Pool { GridCollisionResultComponent(GridCollisionResultComponent.Axes.X, 0) }
 
@@ -54,38 +53,45 @@ class ECSPlatformerTest(context: Context) : ContextListener(context) {
 
                 add(AnimationSystem())
                 add(SpriteRenderBoundsCalculationSystem())
-                add(RenderSystem(this@start, batch, viewport.camera, viewport))
+                add(RenderSystem(this@start, batch, viewport.camera))
             }
         }
         world.entity {
             it += SpriteComponent(heroIdle)
             it += RenderBoundsComponent()
-            it += GridComponent(gridCellSize)
+            it += GridComponent(gridCellSize).apply {
+                anchorY = 0f
+            }
             it += GridCollisionComponent(SimpleCollisionChecker(5, 5))
             it += GridCollisionResolverComponent(SimpleCollisionResolver(5, 5))
             it += GravityComponent().apply {
-                gravityY = 0.075f
+                gravityY = -0.075f
             }
-            it += PlatformerComponent(SimpleGroundChecker(5))
+            it += PlatformerComponent(SimpleGroundChecker())
             it += MoveComponent(frictionX = 0.82f, frictionY = 0.82f)
             it += PlayerInputComponent()
         }
 
         onResize { width, height ->
-            viewport.update(width, height, this, true)
+            viewport.update(width, height, centerCamera = true)
+            graphics.configureSurface(
+                TextureUsage.RENDER_ATTACHMENT,
+                graphics.preferredFormat,
+                PresentMode.FIFO,
+                graphics.surfaceCapabilities.alphaModes[0]
+            )
         }
-        onRender { dt ->
-            gl.clear(ClearBufferMask.COLOR_BUFFER_BIT)
+        onUpdate { dt ->
             world.update(dt.seconds)
         }
 
-        onPostRender {
+        onPostUpdate {
             if (input.isKeyJustPressed(Key.P)) {
                 println(stats)
             }
         }
 
-        onDispose {
+        onRelease {
             world.dispose()
         }
     }
@@ -134,10 +140,7 @@ class ECSPlatformerTest(context: Context) : ContextListener(context) {
 
     private class SimpleCollisionResolver(val gridWidth: Int, val gridHeight: Int) : CollisionResolver() {
         override fun resolveXCollision(
-            grid: GridComponent,
-            move: MoveComponent,
-            collision: GridCollisionComponent,
-            dir: Int
+            grid: GridComponent, move: MoveComponent, collision: GridCollisionComponent, dir: Int
         ) {
             if (dir == -1) {
                 grid.cx = 0
@@ -150,10 +153,7 @@ class ECSPlatformerTest(context: Context) : ContextListener(context) {
         }
 
         override fun resolveYCollision(
-            grid: GridComponent,
-            move: MoveComponent,
-            collision: GridCollisionComponent,
-            dir: Int
+            grid: GridComponent, move: MoveComponent, collision: GridCollisionComponent, dir: Int
         ) {
             if (dir == -1) {
                 grid.cy = 0
@@ -166,34 +166,78 @@ class ECSPlatformerTest(context: Context) : ContextListener(context) {
         }
     }
 
-    private class SimpleGroundChecker(val gridHeight: Int) : GroundChecker() {
+    private class SimpleGroundChecker : GroundChecker() {
         override fun onGround(
-            velocityY: Float,
-            cx: Int,
-            cy: Int,
-            xr: Float,
-            yr: Float,
-            collisionChecker: CollisionChecker
+            velocityY: Float, cx: Int, cy: Int, xr: Float, yr: Float, collisionChecker: CollisionChecker
         ): Boolean {
-            return cy == gridHeight
+            return cy == 0 && yr <= 0.3f
         }
     }
 
     private class RenderSystem(
-        private val context: Context,
+        context: Context,
         private val batch: Batch,
         private val camera: Camera,
-        private val viewport: Viewport
     ) : IteratingSystem(World.family { all(GridComponent, SpriteComponent) }) {
 
         private val viewBounds = Rect()
+        private val graphics = context.graphics
+        private val device = graphics.device
+        private val preferredFormat = graphics.preferredFormat
+        private val logger = Logger<RenderSystem>()
 
         override fun onTick() {
-            viewport.apply(context)
+            val surfaceTexture = graphics.surface.getCurrentTexture()
+            when (val status = surfaceTexture.status) {
+                TextureStatus.SUCCESS -> {
+                    // all good, could check for `surfaceTexture.suboptimal` here.
+                }
+
+                TextureStatus.TIMEOUT, TextureStatus.OUTDATED, TextureStatus.LOST -> {
+                    surfaceTexture.texture?.release()
+                    logger.info { "getCurrentTexture status=$status" }
+                    return
+                }
+
+                else -> {
+                    // fatal
+                    error("getCurrentTexture status=$status")
+                }
+            }
+            val swapChainTexture = checkNotNull(surfaceTexture.texture)
+            val frame = swapChainTexture.createView()
+
+            val commandEncoder = device.createCommandEncoder()
+            val renderPassEncoder = commandEncoder.beginRenderPass(
+                desc = RenderPassDescriptor(
+                    listOf(
+                        RenderPassColorAttachmentDescriptor(
+                            view = frame,
+                            loadOp = LoadOp.CLEAR,
+                            storeOp = StoreOp.STORE,
+                            clearColor = if (preferredFormat.srgb) Color.DARK_GRAY.toLinear()
+                            else Color.DARK_GRAY
+                        )
+                    )
+                )
+            )
+
+            camera.update()
             viewBounds.calculateViewBounds(camera)
-            batch.use(camera.viewProjection) {
+            batch.use(renderPassEncoder, camera.viewProjection) {
                 super.onTick()
             }
+            renderPassEncoder.end()
+
+            val commandBuffer = commandEncoder.finish()
+            device.queue.submit(commandBuffer)
+            graphics.surface.present()
+
+            commandBuffer.release()
+            renderPassEncoder.release()
+            commandEncoder.release()
+            frame.release()
+            swapChainTexture.release()
         }
 
         override fun onTickEntity(entity: Entity) {
@@ -204,22 +248,21 @@ class ECSPlatformerTest(context: Context) : ContextListener(context) {
             val slice = sprite.slice
 
             if (slice != null) {
-                if (renderBounds == null || viewBounds.intersects(renderBounds.bounds))
-                    batch.draw(
-                        slice,
-                        grid.x,
-                        grid.y,
-                        grid.anchorX * slice.originalWidth,
-                        grid.anchorY * slice.originalHeight,
-                        width = sprite.renderWidth,
-                        height = sprite.renderHeight,
-                        scaleX = grid.scaleX,
-                        scaleY = grid.scaleY,
-                        flipX = sprite.flipX,
-                        flipY = sprite.flipY,
-                        rotation = grid.rotation,
-                        colorBits = sprite.color.toFloatBits()
-                    )
+                if (renderBounds == null || viewBounds.intersects(renderBounds.bounds)) batch.draw(
+                    slice,
+                    grid.x,
+                    grid.y,
+                    grid.anchorX * slice.actualWidth,
+                    grid.anchorY * slice.actualHeight,
+                    width = sprite.renderWidth,
+                    height = sprite.renderHeight,
+                    scaleX = grid.scaleX,
+                    scaleY = grid.scaleY,
+                    flipX = sprite.flipX,
+                    flipY = sprite.flipY,
+                    rotation = grid.rotation,
+                    color = sprite.color
+                )
 
             }
         }
@@ -253,7 +296,7 @@ class ECSPlatformerTest(context: Context) : ContextListener(context) {
             }
 
             if (input.isKeyJustPressed(Key.SPACE)) {
-                move.velocityY = -0.5f
+                move.velocityY = 0.5f
             }
         }
     }
@@ -271,12 +314,10 @@ class ECSPlatformerTest(context: Context) : ContextListener(context) {
     }
 }
 
-
 fun main() {
     createLittleKtApp {
         width = 960
         height = 540
-        backgroundColor = Color.DARK_GRAY
     }.start {
         ECSPlatformerTest(it)
     }

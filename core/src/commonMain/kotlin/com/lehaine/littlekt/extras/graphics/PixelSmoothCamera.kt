@@ -1,7 +1,7 @@
 package com.lehaine.littlekt.extras.graphics
 
-import com.lehaine.littlekt.graphics.OrthographicCamera
-import com.lehaine.littlekt.math.MutableVec2f
+import com.littlekt.graphics.OrthographicCamera
+import com.littlekt.math.MutableVec2f
 
 /**
  * @author Colton Daily

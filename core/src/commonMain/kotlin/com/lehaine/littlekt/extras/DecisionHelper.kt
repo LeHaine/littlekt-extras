@@ -1,6 +1,6 @@
 package com.lehaine.littlekt.extras
 
-import com.lehaine.littlekt.util.fastForEach
+import com.littlekt.util.datastructure.fastForEach
 
 @PublishedApi
 internal data class DecisionElement<T>(val value: T) {

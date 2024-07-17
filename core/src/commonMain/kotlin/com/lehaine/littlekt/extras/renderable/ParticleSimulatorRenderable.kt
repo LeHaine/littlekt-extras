@@ -1,15 +1,13 @@
 package com.lehaine.littlekt.extras.renderable
 
-import com.lehaine.littlekt.graphics.Camera
-import com.lehaine.littlekt.graphics.g2d.Batch
-import com.lehaine.littlekt.graphics.g2d.ParticleSimulator
-import com.lehaine.littlekt.graphics.g2d.TextureSlice
-import com.lehaine.littlekt.graphics.g2d.shape.ShapeRenderer
-import com.lehaine.littlekt.graphics.toFloatBits
-import com.lehaine.littlekt.math.Rect
-import com.lehaine.littlekt.util.calculateViewBounds
-import com.lehaine.littlekt.util.fastForEach
-
+import com.littlekt.graphics.Camera
+import com.littlekt.graphics.g2d.Batch
+import com.littlekt.graphics.g2d.ParticleSimulator
+import com.littlekt.graphics.g2d.TextureSlice
+import com.littlekt.graphics.g2d.shape.ShapeRenderer
+import com.littlekt.math.Rect
+import com.littlekt.util.calculateViewBounds
+import com.littlekt.util.datastructure.fastForEach
 
 class ParticleSimulatorRenderable : Renderable2D() {
 
@@ -26,7 +24,7 @@ class ParticleSimulatorRenderable : Renderable2D() {
         viewBounds.calculateViewBounds(camera)
         val blendMode = blendMode
         if (simulator.particles.isNotEmpty() && blendMode != null) {
-            batch.setBlendFunction(blendMode)
+            batch.setBlendState(blendMode)
         }
         simulator.particles.fastForEach {
             if (!it.visible || !it.alive) return@fastForEach
@@ -47,7 +45,7 @@ class ParticleSimulatorRenderable : Renderable2D() {
                     scaleX = it.scaleX * scaleX * ppuInv,
                     scaleY = it.scaleY * scaleY * ppuInv,
                     rotation = it.rotation + rotation,
-                    colorBits = it.color.toFloatBits()
+                    color = it.color
                 )
             }
         }

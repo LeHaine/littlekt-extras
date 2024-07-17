@@ -1,14 +1,11 @@
 package com.lehaine.littlekt.extras
 
-import com.lehaine.littlekt.graph.node.Node
-import com.lehaine.littlekt.util.fastForEach
+import com.littlekt.util.datastructure.fastForEach
 import kotlin.time.Duration
-
 
 @DslMarker
 @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
 annotation class ActionCreatorDslMarker
-
 
 /**
  * An action creator to create cutscenes with sequential actions.
@@ -96,7 +93,6 @@ open class ActionCreator(
         init: @ActionCreatorDslMarker ActionCreator.() -> Unit = {}
     ) = waitFor("", init)
 
-
     fun wait(
         time: Duration,
         init: @ActionCreatorDslMarker ActionCreator.() -> Unit = {}
@@ -133,7 +129,3 @@ open class ActionCreator(
         private var genId = 0
     }
 }
-
-fun Node.actionCreator(
-    block: @ActionCreatorDslMarker ActionCreator.() -> Unit = {}
-): ActionCreator = ActionCreator().apply(block)

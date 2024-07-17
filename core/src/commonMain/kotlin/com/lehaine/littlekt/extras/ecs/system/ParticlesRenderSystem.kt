@@ -5,10 +5,10 @@ import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.IteratingSystem
 import com.github.quillraven.fleks.World.Companion.family
 import com.lehaine.littlekt.extras.ecs.component.ParticlesComponent
-import com.lehaine.littlekt.graphics.g2d.Batch
-import com.lehaine.littlekt.graphics.toFloatBits
-import com.lehaine.littlekt.math.Rect
-import com.lehaine.littlekt.util.fastForEach
+import com.littlekt.graphics.g2d.Batch
+import com.littlekt.graphics.toFloatBits
+import com.littlekt.math.Rect
+import com.littlekt.util.datastructure.fastForEach
 
 /**
  * @author Colton Daily
@@ -25,7 +25,7 @@ open class ParticlesRenderSystem(
 
         with(particlesComponent) {
             if (particles.isNotEmpty()) {
-                batch.setBlendFunction(blendMode)
+                batch.setBlendState(blendMode)
             }
             particles.fastForEach {
                 if (!it.visible || !it.alive) return@fastForEach
@@ -46,13 +46,13 @@ open class ParticlesRenderSystem(
                         scaleX = it.scaleX * scaleX,
                         scaleY = it.scaleY * scaleY,
                         rotation = it.rotation + rotation,
-                        colorBits = it.color.toFloatBits()
+                        color = it.color
                     )
                 }
             }
 
             if (particles.isNotEmpty()) {
-                batch.setToPreviousBlendFunction()
+                batch.swapToPreviousBlendState()
             }
         }
     }

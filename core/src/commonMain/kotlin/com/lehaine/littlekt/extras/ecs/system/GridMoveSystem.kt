@@ -6,7 +6,7 @@ import com.github.quillraven.fleks.Interval
 import com.github.quillraven.fleks.IteratingSystem
 import com.github.quillraven.fleks.World.Companion.family
 import com.lehaine.littlekt.extras.ecs.component.*
-import com.lehaine.littlekt.util.datastructure.Pool
+import com.littlekt.util.datastructure.Pool
 import kotlin.math.abs
 import kotlin.math.ceil
 

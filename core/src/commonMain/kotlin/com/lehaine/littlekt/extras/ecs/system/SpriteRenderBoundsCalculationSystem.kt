@@ -6,13 +6,13 @@ import com.github.quillraven.fleks.World.Companion.family
 import com.lehaine.littlekt.extras.ecs.component.GridComponent
 import com.lehaine.littlekt.extras.ecs.component.RenderBoundsComponent
 import com.lehaine.littlekt.extras.ecs.component.SpriteComponent
-import com.lehaine.littlekt.math.Mat3
-import com.lehaine.littlekt.math.MutableVec2f
-import com.lehaine.littlekt.math.Rect
-import com.lehaine.littlekt.math.geom.Angle
-import com.lehaine.littlekt.math.geom.degrees
-import com.lehaine.littlekt.math.geom.normalized
-import com.lehaine.littlekt.math.ife
+import com.littlekt.math.Mat3
+import com.littlekt.math.MutableVec2f
+import com.littlekt.math.Rect
+import com.littlekt.math.geom.Angle
+import com.littlekt.math.geom.degrees
+import com.littlekt.math.geom.normalized
+import com.littlekt.math.ife
 
 /**
  * @author Colton Daily
@@ -41,10 +41,10 @@ class SpriteRenderBoundsCalculationSystem :
 
             val slice = sprite.slice
             val origWidth =
-                (if (slice?.rotated == true) slice.originalHeight.toFloat() else slice?.originalWidth?.toFloat())
+                (if (slice?.rotated == true) slice.actualHeight.toFloat() else slice?.actualWidth?.toFloat())
                     ?: sprite.renderWidth
             val origHeight =
-                (if (slice?.rotated == true) slice.originalWidth.toFloat() else slice?.originalHeight?.toFloat())
+                (if (slice?.rotated == true) slice.actualWidth.toFloat() else slice?.actualHeight?.toFloat())
                     ?: sprite.renderHeight
 
             calculateBounds(

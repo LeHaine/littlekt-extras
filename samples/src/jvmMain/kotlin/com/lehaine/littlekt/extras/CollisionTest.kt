@@ -1,22 +1,21 @@
 package com.lehaine.littlekt.extras
 
-import com.lehaine.littlekt.Context
-import com.lehaine.littlekt.createLittleKtApp
 import com.lehaine.littlekt.extras.grid.entity.GridEntity
 import com.lehaine.littlekt.extras.grid.entity.toPixelPosition
-import com.lehaine.littlekt.graphics.Camera
-import com.lehaine.littlekt.graphics.Color
-import com.lehaine.littlekt.graphics.OrthographicCamera
-import com.lehaine.littlekt.graphics.g2d.Batch
-import com.lehaine.littlekt.graphics.g2d.SpriteBatch
-import com.lehaine.littlekt.graphics.g2d.shape.ShapeRenderer
-import com.lehaine.littlekt.graphics.g2d.use
-import com.lehaine.littlekt.graphics.gl.ClearBufferMask
-import com.lehaine.littlekt.graphics.toFloatBits
-import com.lehaine.littlekt.input.Input
-import com.lehaine.littlekt.input.Key
-import com.lehaine.littlekt.math.geom.degrees
-import com.lehaine.littlekt.util.fastForEach
+import com.littlekt.Context
+import com.littlekt.createLittleKtApp
+import com.littlekt.graphics.Camera
+import com.littlekt.graphics.Color
+import com.littlekt.graphics.OrthographicCamera
+import com.littlekt.graphics.g2d.Batch
+import com.littlekt.graphics.g2d.SpriteBatch
+import com.littlekt.graphics.g2d.shape.ShapeRenderer
+import com.littlekt.graphics.g2d.use
+import com.littlekt.graphics.webgpu.*
+import com.littlekt.input.Input
+import com.littlekt.input.Key
+import com.littlekt.math.geom.degrees
+import com.littlekt.util.datastructure.fastForEach
 import kotlin.time.Duration
 
 /**
@@ -27,44 +26,38 @@ class CollisionTest(context: Context) : FixedTimeContextListener(context) {
 
     val dummies = mutableListOf<BitsEntity>()
     val player = PlayerEntity()
-
-    val greenBits = Color.GREEN.toFloatBits()
-    val yellowBits = Color.YELLOW.toFloatBits()
-    val cyanBits = Color.CYAN.toFloatBits()
-    val redBits = Color.RED.toFloatBits()
-
     val input: Input get() = context.input
 
     open inner class BitsEntity : GridEntity(8f) {
-        var currentBits = 0f
+        var color = Color.WHITE
 
         override fun render(batch: Batch, camera: Camera, shapeRenderer: ShapeRenderer) {
             super.render(batch, camera, shapeRenderer)
             shapeRenderer.filledRectangle(
                 left,
-                top,
+                bottom,
                 width,
                 height,
                 rotation,
-                currentBits
+                color
             )
             shapeRenderer.circle(
                 centerX,
                 centerY,
                 innerRadius,
-                color = yellowBits
+                color = Color.YELLOW
             )
             shapeRenderer.circle(
                 centerX,
                 centerY,
                 encompassingRadius,
-                color = greenBits
+                color = Color.GREEN
             )
         }
 
         override fun update(dt: Duration) {
             super.update(dt)
-            currentBits = if (isCollidingWith(player, true)) redBits else cyanBits
+            color = if (isCollidingWith(player, true)) Color.RED else Color.CYAN
         }
     }
 
@@ -79,10 +72,10 @@ class CollisionTest(context: Context) : FixedTimeContextListener(context) {
         override fun update(dt: Duration) {
             super.update(dt)
             if (input.isKeyPressed(Key.W)) {
-                velocityY = -1f
+                velocityY = 1f
             }
             if (input.isKeyPressed(Key.S)) {
-                velocityY = 1f
+                velocityY = -1f
             }
             if (input.isKeyPressed(Key.A)) {
                 velocityX = -1f
@@ -91,13 +84,13 @@ class CollisionTest(context: Context) : FixedTimeContextListener(context) {
                 velocityX = 1f
             }
             if (input.isKeyPressed(Key.E)) {
-                rotation += 1.degrees
-            }
-            if (input.isKeyPressed(Key.Q)) {
                 rotation -= 1.degrees
             }
+            if (input.isKeyPressed(Key.Q)) {
+                rotation += 1.degrees
+            }
 
-            currentBits = if (dummies.any { isCollidingWith(it, true) }) redBits else greenBits
+            color = if (dummies.any { isCollidingWith(it, true) }) Color.RED else Color.GREEN
         }
     }
 
@@ -107,7 +100,7 @@ class CollisionTest(context: Context) : FixedTimeContextListener(context) {
             height = 256f
             anchorX = 0f
             anchorY = 0f
-            currentBits = Color.YELLOW.toFloatBits()
+            color = Color.YELLOW
             toPixelPosition(500f, 100f)
         }
 
@@ -117,16 +110,32 @@ class CollisionTest(context: Context) : FixedTimeContextListener(context) {
             anchorX = 0f
             anchorY = 0f
 
-            currentBits = greenBits
+            color = Color.GREEN
             toPixelPosition(300f, 100f)
         }
+        val device = graphics.device
+        val surfaceCapabilities = graphics.surfaceCapabilities
+        val preferredFormat = graphics.preferredFormat
 
-        val batch = SpriteBatch(this)
+        graphics.configureSurface(
+            TextureUsage.RENDER_ATTACHMENT,
+            preferredFormat,
+            PresentMode.FIFO,
+            surfaceCapabilities.alphaModes[0]
+        )
+
+        val batch = SpriteBatch(device, graphics, preferredFormat)
         val shapeRenderer = ShapeRenderer(batch)
         val camera = OrthographicCamera(graphics.width, graphics.height)
 
         onResize { width, height ->
             camera.ortho(width, height)
+            graphics.configureSurface(
+                TextureUsage.RENDER_ATTACHMENT,
+                preferredFormat,
+                PresentMode.FIFO,
+                surfaceCapabilities.alphaModes[0]
+            )
         }
 
         onFixedUpdate {
@@ -134,9 +143,48 @@ class CollisionTest(context: Context) : FixedTimeContextListener(context) {
             dummies.fastForEach { it.fixedUpdate() }
         }
 
-        onRender { dt ->
-            gl.clearColor(0.1f, 0.1f, 0.1f, 1f)
-            gl.clear(ClearBufferMask.COLOR_BUFFER_BIT)
+        onUpdate { dt ->
+            val surfaceTexture = graphics.surface.getCurrentTexture()
+            when (val status = surfaceTexture.status) {
+                TextureStatus.SUCCESS -> {
+                    // all good, could check for `surfaceTexture.suboptimal` here.
+                }
+
+                TextureStatus.TIMEOUT,
+                TextureStatus.OUTDATED,
+                TextureStatus.LOST -> {
+                    surfaceTexture.texture?.release()
+                    logger.info { "getCurrentTexture status=$status" }
+                    return@onUpdate
+                }
+
+                else -> {
+                    // fatal
+                    logger.fatal { "getCurrentTexture status=$status" }
+                    close()
+                    return@onUpdate
+                }
+            }
+            val swapChainTexture = checkNotNull(surfaceTexture.texture)
+            val frame = swapChainTexture.createView()
+
+            val commandEncoder = device.createCommandEncoder()
+            val renderPassEncoder =
+                commandEncoder.beginRenderPass(
+                    desc =
+                    RenderPassDescriptor(
+                        listOf(
+                            RenderPassColorAttachmentDescriptor(
+                                view = frame,
+                                loadOp = LoadOp.CLEAR,
+                                storeOp = StoreOp.STORE,
+                                clearColor =
+                                if (preferredFormat.srgb) Color.DARK_GRAY.toLinear()
+                                else Color.DARK_GRAY
+                            )
+                        )
+                    )
+                )
 
             player.preUpdate(dt)
             dummies.fastForEach { it.preUpdate(dt) }
@@ -151,10 +199,27 @@ class CollisionTest(context: Context) : FixedTimeContextListener(context) {
             player.postUpdate(dt)
             dummies.fastForEach { it.postUpdate(dt) }
 
-            batch.use(camera.viewProjection) {
+            batch.use(renderPassEncoder, camera.viewProjection) {
                 player.render(batch, camera, shapeRenderer)
                 dummies.fastForEach { it.render(batch, camera, shapeRenderer) }
             }
+            renderPassEncoder.end()
+
+            val commandBuffer = commandEncoder.finish()
+
+            device.queue.submit(commandBuffer)
+            graphics.surface.present()
+
+            commandBuffer.release()
+            renderPassEncoder.release()
+            commandEncoder.release()
+            frame.release()
+            swapChainTexture.release()
+        }
+
+        onRelease {
+            batch.release()
+            device.release()
         }
     }
 }
@@ -163,7 +228,6 @@ fun main() {
     createLittleKtApp {
         width = 960
         height = 540
-        backgroundColor = Color.DARK_GRAY
     }.start {
         CollisionTest(it)
     }

@@ -3,9 +3,9 @@ package com.lehaine.littlekt.extras.ecs.component
 import com.github.quillraven.fleks.Component
 import com.github.quillraven.fleks.ComponentType
 import com.lehaine.littlekt.extras.renderable.Sprite
-import com.lehaine.littlekt.graphics.Color
-import com.lehaine.littlekt.graphics.g2d.Batch
-import com.lehaine.littlekt.graphics.g2d.TextureSlice
+import com.littlekt.graphics.Color
+import com.littlekt.graphics.g2d.Batch
+import com.littlekt.graphics.g2d.TextureSlice
 
 /**
  * @author Colton Daily

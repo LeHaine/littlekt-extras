@@ -1,8 +1,8 @@
 package com.lehaine.littlekt.extras
 
-import com.lehaine.littlekt.math.castRay
-import com.lehaine.littlekt.math.distSqr
-import com.lehaine.littlekt.util.fastForEach
+import com.littlekt.math.castRay
+import com.littlekt.math.distSqr
+import com.littlekt.util.datastructure.fastForEach
 
 /**
  * Source: https://github.com/deepnight/deepnightLibs/blob/master/src/dn/pathfinder/AStar.hx
@@ -149,7 +149,6 @@ class AStar(private val width: Int, private val height: Int, private val hasColl
         return open
     }
 
-
     private fun nodeAt(cx: Int, cy: Int): PathNode? {
         nodes.fastForEach { n ->
             if (n.cx == cx && n.cy == cy) {
@@ -203,7 +202,6 @@ private class PathNode(cWdith: Int, val cx: Int, val cy: Int) {
             node._links.add(this)
         }
     }
-
 
     fun distSqr(tx: Int, ty: Int) = distSqr(cx, cy, tx, ty).toFloat()
     fun distTotalSqr(tx: Int, ty: Int) = homeDist + distSqr(tx, ty)

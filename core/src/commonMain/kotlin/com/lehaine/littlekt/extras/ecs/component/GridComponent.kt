@@ -3,12 +3,12 @@ package com.lehaine.littlekt.extras.ecs.component
 import com.github.quillraven.fleks.Component
 import com.github.quillraven.fleks.ComponentType
 import com.lehaine.littlekt.extras.grid.entity.GridEntity
-import com.lehaine.littlekt.math.castRay
-import com.lehaine.littlekt.math.dist
-import com.lehaine.littlekt.math.geom.Angle
-import com.lehaine.littlekt.math.geom.radians
-import com.lehaine.littlekt.math.interpolate
-import com.lehaine.littlekt.util.seconds
+import com.littlekt.math.castRay
+import com.littlekt.math.dist
+import com.littlekt.math.geom.Angle
+import com.littlekt.math.geom.radians
+import com.littlekt.math.interpolate
+import com.littlekt.util.seconds
 import kotlin.math.atan2
 import kotlin.math.max
 import kotlin.math.min
@@ -26,7 +26,7 @@ class GridComponent(var gridCellSize: Float, var width: Float = gridCellSize, va
             field = value
             dirty = true
         }
-    var anchorY: Float = 0.5f
+    var anchorY: Float = 0f
         set(value) {
             if (field == value) return
             field = value
@@ -51,7 +51,7 @@ class GridComponent(var gridCellSize: Float, var width: Float = gridCellSize, va
             field = value
             dirty = true
         }
-    var yr: Float = 1f
+    var yr: Float = 0f
         set(value) {
             if (field == value) return
             field = value
@@ -73,6 +73,10 @@ class GridComponent(var gridCellSize: Float, var width: Float = gridCellSize, va
 
     var interpolatePixelPosition: Boolean = true
 
+    /**
+     * The ratio to interpolate the last position to the new position.
+     * This will need updated before each update.
+     */
     var interpolationAlpha: Float = 1f
 
     var lastPx: Float = 0f
@@ -141,14 +145,14 @@ class GridComponent(var gridCellSize: Float, var width: Float = gridCellSize, va
         }
 
     /**
-     * The current entity x-scaling.
+     * The current extra x-scaling.
      */
-    var entityScaleX = 1f
+    var extraScaleX = 1f
 
     /**
-     * The current entity y-scaling.
+     * The current extra y-scaling.
      */
-    var entityScaleY = 1f
+    var extraScaleY = 1f
 
     var restoreSpeed: Float = 12f
 
@@ -158,9 +162,9 @@ class GridComponent(var gridCellSize: Float, var width: Float = gridCellSize, va
     val attachY get() = (cy + yr - zr) * gridCellSize
     val centerX get() = attachX + (0.5f - anchorX) * width
     val centerY get() = attachY + (0.5f - anchorY) * height
-    val top get() = attachY - anchorY * height
+    val top get() = attachY + (1 - anchorY) * height
     val right get() = attachX + (1 - anchorX) * width
-    val bottom get() = attachY + (1 - anchorY) * height
+    val bottom get() = attachY - anchorY * height
     val left get() = attachX - anchorX * width
 
     fun castRayTo(tcx: Int, tcy: Int, canRayPass: (Int, Int) -> Boolean) =
@@ -198,8 +202,8 @@ class GridComponent(var gridCellSize: Float, var width: Float = gridCellSize, va
     }
 
     fun updateScaling(dt: Duration) {
-        entityScaleX = scaleX * dir * stretchX
-        entityScaleY = scaleY * stretchY
+        extraScaleX = scaleX * dir * stretchX
+        extraScaleY = scaleY * stretchY
         _stretchX += (1 - _stretchX) * min(1f, restoreSpeed * dt.seconds)
         _stretchY += (1 - _stretchY) * min(1f, restoreSpeed * dt.seconds)
     }

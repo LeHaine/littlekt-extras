@@ -4,7 +4,7 @@ import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.IteratingSystem
 import com.github.quillraven.fleks.World
 import com.lehaine.littlekt.extras.ecs.component.GridCollisionResultComponent
-import com.lehaine.littlekt.util.datastructure.Pool
+import com.littlekt.util.datastructure.Pool
 
 /**
  * @author Colton Daily

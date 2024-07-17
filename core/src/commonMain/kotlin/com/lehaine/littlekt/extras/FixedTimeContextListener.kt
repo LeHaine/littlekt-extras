@@ -1,11 +1,11 @@
 package com.lehaine.littlekt.extras
 
-import com.lehaine.littlekt.Context
-import com.lehaine.littlekt.ContextListener
-import com.lehaine.littlekt.RemoveContextCallback
-import com.lehaine.littlekt.util.fastForEach
-import com.lehaine.littlekt.util.milliseconds
-import com.lehaine.littlekt.util.seconds
+import com.littlekt.Context
+import com.littlekt.ContextListener
+import com.littlekt.RemoveContextCallback
+import com.littlekt.util.datastructure.fastForEach
+import com.littlekt.util.milliseconds
+import com.littlekt.util.seconds
 import kotlin.time.Duration
 
 /**
@@ -48,13 +48,13 @@ abstract class FixedTimeContextListener(context: Context) : ContextListener(cont
     protected val removeEntityOnRender: RemoveContextCallback
 
     init {
-        removeEntityOnRender = context.onRender(::updateFixedTimes)
+        removeEntityOnRender = context.onUpdate(::updateFixedTimes)
     }
 
     /**
      * Ensure [removeEntityOnRender] is invoked before manually updating the fixed times.
      */
-    protected fun updateFixedTimes(dt:Duration) {
+    protected fun updateFixedTimes(dt: Duration) {
         tmod = dt.seconds * targetFPS
 
         accum += dt

@@ -1,17 +1,16 @@
 package com.lehaine.littlekt.extras.renderable
 
-import com.lehaine.littlekt.graphics.Camera
-import com.lehaine.littlekt.graphics.Color
-import com.lehaine.littlekt.graphics.g2d.Batch
-import com.lehaine.littlekt.graphics.g2d.shape.ShapeRenderer
-import com.lehaine.littlekt.graphics.toFloatBits
-import com.lehaine.littlekt.graphics.util.BlendMode
-import com.lehaine.littlekt.math.Mat3
-import com.lehaine.littlekt.math.MutableVec2f
-import com.lehaine.littlekt.math.Rect
-import com.lehaine.littlekt.math.Vec2f
-import com.lehaine.littlekt.math.geom.Angle
-import com.lehaine.littlekt.math.geom.normalized
+import com.littlekt.graphics.Camera
+import com.littlekt.graphics.Color
+import com.littlekt.graphics.g2d.Batch
+import com.littlekt.graphics.g2d.shape.ShapeRenderer
+import com.littlekt.graphics.webgpu.BlendState
+import com.littlekt.math.Mat3
+import com.littlekt.math.MutableVec2f
+import com.littlekt.math.Rect
+import com.littlekt.math.Vec2f
+import com.littlekt.math.geom.Angle
+import com.littlekt.math.geom.normalized
 
 abstract class Renderable2D {
 
@@ -25,7 +24,7 @@ abstract class Renderable2D {
      */
     abstract val renderHeight: Float
 
-    var blendMode: BlendMode? = BlendMode.NonPreMultiplied
+    var blendMode: BlendState? = BlendState.NonPreMultiplied
 
     var ppu: Float = 1f
     val ppuInv: Float get() = 1f / ppu
@@ -166,7 +165,7 @@ abstract class Renderable2D {
     open fun render(batch: Batch, camera: Camera, shapeRenderer: ShapeRenderer) = Unit
 
     open fun debugRender(batch: Batch, camera: Camera, shapeRenderer: ShapeRenderer) {
-        shapeRenderer.rectangle(renderBounds, color = Color.YELLOW.toFloatBits())
+        shapeRenderer.rectangle(renderBounds, color = Color.YELLOW)
     }
 
     protected fun calculateBounds(
