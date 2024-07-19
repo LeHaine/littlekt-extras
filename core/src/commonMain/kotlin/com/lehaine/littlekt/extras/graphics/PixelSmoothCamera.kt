@@ -13,7 +13,7 @@ open class PixelSmoothCamera : OrthographicCamera() {
     val ppuInv: Float get() = 1f / ppu
 
     val offset = MutableVec2f()
-    var fbo: PixelSmoothFrameBuffer? = null
+    var renderTarget: PixelSmoothRenderTarget? = null
         set(value) {
             field = value
             if (value != null) {
@@ -21,7 +21,7 @@ open class PixelSmoothCamera : OrthographicCamera() {
             }
         }
 
-    private fun calculateOffset(fbo: PixelSmoothFrameBuffer) {
+    private fun calculateOffset(fbo: PixelSmoothRenderTarget) {
         offset.set(((fbo.width - fbo.pxWidth) / 2).toFloat(), ((fbo.height - fbo.pxHeight) / 2).toFloat())
             .scale(ppuInv)
     }

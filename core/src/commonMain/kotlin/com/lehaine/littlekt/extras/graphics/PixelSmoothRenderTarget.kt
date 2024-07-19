@@ -14,7 +14,7 @@ import kotlin.math.min
  * @author Colton Daily
  * @date 3/1/2023
  */
-class PixelSmoothFrameBuffer private constructor(
+class PixelSmoothRenderTarget private constructor(
     device: Device,
     format: TextureFormat,
     val width: Int,
@@ -48,12 +48,14 @@ class PixelSmoothFrameBuffer private constructor(
 
     companion object {
         operator fun invoke(
+            device: Device,
+            format: TextureFormat,
             screenWidth: Int,
             screenHeight: Int,
             targetHeight: Int,
             maxWidth: Int = 0,
             maxHeight: Int = 0
-        ): PixelSmoothFrameBuffer {
+        ): PixelSmoothRenderTarget {
             var h = screenHeight / (screenHeight / targetHeight)
             var w = (screenWidth / (screenHeight / h))
             if (maxWidth > 0) {
@@ -65,7 +67,14 @@ class PixelSmoothFrameBuffer private constructor(
             val pxWidth = w
             val pxHeight = h
 
-            return PixelSmoothFrameBuffer(pxWidth.nextPowerOfTwo, pxHeight.nextPowerOfTwo, pxWidth, pxHeight)
+            return PixelSmoothRenderTarget(
+                device,
+                format,
+                pxWidth.nextPowerOfTwo,
+                pxHeight.nextPowerOfTwo,
+                pxWidth,
+                pxHeight
+            )
         }
     }
 }
