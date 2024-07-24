@@ -18,7 +18,7 @@ class LevelGroundChecker(private val level: GameLevel<*>) : GroundChecker() {
         if (collisionChecker is LevelCollisionChecker) {
             return velocityY == 0f && level.hasCollision(
                 cx,
-                cy + 1
+                cy - 1
             ) && yr == collisionChecker.bottomCollisionRatio
         }
         return false

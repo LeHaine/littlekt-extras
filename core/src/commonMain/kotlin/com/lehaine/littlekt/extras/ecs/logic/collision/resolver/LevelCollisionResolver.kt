@@ -43,11 +43,11 @@ object LevelCollisionResolver : CollisionResolver() {
         if (checker is LevelCollisionChecker) {
             val heightCoordDiff =
                 if (checker.useTopCollisionRatio) checker.topCollisionRatio else floor(grid.height / grid.gridCellSize)
-            if (dir == -1) {
+            if (dir == 1) {
                 grid.yr = heightCoordDiff
                 move.velocityY = 0f
             }
-            if (dir == 1) {
+            if (dir == -1) {
                 grid.yr = checker.bottomCollisionRatio
                 move.velocityY = 0f
             }

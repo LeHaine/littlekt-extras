@@ -10,7 +10,7 @@ import kotlin.math.floor
 open class LevelCollisionChecker(protected val level: GameLevel<*>) : CollisionChecker() {
     open var rightCollisionRatio: Float = 0.7f
     open var leftCollisionRatio: Float = 0.3f
-    open var bottomCollisionRatio: Float = 1f
+    open var bottomCollisionRatio: Float = 0f
     open var topCollisionRatio: Float = 1f
     open var useTopCollisionRatio: Boolean = false
 
@@ -45,13 +45,12 @@ open class LevelCollisionChecker(protected val level: GameLevel<*>) : CollisionC
         height: Float,
         cellSize: Float
     ): Int {
-        val heightCoordDiff =
-            if (useTopCollisionRatio) topCollisionRatio else floor(height / cellSize)
-        if (level.hasCollision(cx, cy - 1) && yr <= heightCoordDiff) {
-            return -1
-        }
-        if (level.hasCollision(cx, cy + 1) && yr >= bottomCollisionRatio) {
+        val heightCoordDiff = if (useTopCollisionRatio) topCollisionRatio else floor(height / cellSize)
+        if (level.hasCollision(cx, cy + 1) && yr >= heightCoordDiff) {
             return 1
+        }
+        if (level.hasCollision(cx, cy - 1) && yr <= bottomCollisionRatio) {
+            return -1
         }
         return 0
     }
