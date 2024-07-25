@@ -53,7 +53,7 @@ class Cooldown {
     }
 
     private fun removeTimer(name: String) {
-        timersNameToTimerInstance[name] ?: return
+        timersNameToTimerInstance.remove(name) ?: return
         timers.removeAll {
             val remove = it.name == name
             if (remove) {
