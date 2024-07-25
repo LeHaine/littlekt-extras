@@ -145,14 +145,14 @@ class GridComponent(var gridCellSize: Float, var width: Float = gridCellSize, va
         }
 
     /**
-     * The current extra x-scaling.
+     * The current x-scaling.
      */
-    var extraScaleX = 1f
+    var currentScaleX = 1f
 
     /**
-     * The current extra y-scaling.
+     * The current y-scaling.
      */
-    var extraScaleY = 1f
+    var currentScaleY = 1f
 
     var restoreSpeed: Float = 12f
 
@@ -202,8 +202,8 @@ class GridComponent(var gridCellSize: Float, var width: Float = gridCellSize, va
     }
 
     fun updateScaling(dt: Duration) {
-        extraScaleX = scaleX * dir * stretchX
-        extraScaleY = scaleY * stretchY
+        currentScaleX = scaleX * dir * stretchX
+        currentScaleY = scaleY * stretchY
         _stretchX += (1 - _stretchX) * min(1f, restoreSpeed * dt.seconds)
         _stretchY += (1 - _stretchY) * min(1f, restoreSpeed * dt.seconds)
     }
