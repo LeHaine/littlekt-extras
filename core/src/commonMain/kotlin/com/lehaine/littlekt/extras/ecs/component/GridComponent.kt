@@ -128,20 +128,20 @@ class GridComponent(var gridCellSize: Float, var width: Float = gridCellSize, va
             field = value
             dirty = true
         }
-    private var _stretchX = 1f
-    private var _stretchY = 1f
+    private var _squashX = 1f
+    private var _squashY = 1f
 
-    var stretchX: Float
-        get() = _stretchX
+    var squashX: Float
+        get() = _squashX
         set(value) {
-            _stretchX = value
-            _stretchY = 2 - value
+            _squashX = value
+            _squashY = 2 - value
         }
-    var stretchY: Float
-        get() = _stretchY
+    var squashY: Float
+        get() = _squashY
         set(value) {
-            _stretchX = 2 - value
-            _stretchY = value
+            _squashX = 2 - value
+            _squashY = value
         }
 
     /**
@@ -202,10 +202,10 @@ class GridComponent(var gridCellSize: Float, var width: Float = gridCellSize, va
     }
 
     fun updateScaling(dt: Duration) {
-        currentScaleX = scaleX * dir * stretchX
-        currentScaleY = scaleY * stretchY
-        _stretchX += (1 - _stretchX) * min(1f, restoreSpeed * dt.seconds)
-        _stretchY += (1 - _stretchY) * min(1f, restoreSpeed * dt.seconds)
+        currentScaleX = scaleX * dir * squashX
+        currentScaleY = scaleY * squashY
+        _squashX += (1 - _squashX) * min(1f, restoreSpeed * dt.seconds)
+        _squashY += (1 - _squashY) * min(1f, restoreSpeed * dt.seconds)
     }
 
     override fun type(): ComponentType<GridComponent> = GridComponent

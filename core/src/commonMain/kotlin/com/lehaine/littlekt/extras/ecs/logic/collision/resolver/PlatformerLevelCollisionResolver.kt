@@ -10,7 +10,7 @@ import kotlin.math.floor
  * @author Colton Daily
  * @date 3/10/2023
  */
-object LevelCollisionResolver : CollisionResolver() {
+object PlatformerLevelCollisionResolver : CollisionResolver() {
 
     override fun resolveXCollision(
         grid: GridComponent,
@@ -46,6 +46,7 @@ object LevelCollisionResolver : CollisionResolver() {
             }
             if (dir == -1) {
                 grid.yr = checker.bottomCollisionRatio
+                move.velocityY = 0f
             }
         } else {
             super.resolveYCollision(grid, move, collision, dir)
