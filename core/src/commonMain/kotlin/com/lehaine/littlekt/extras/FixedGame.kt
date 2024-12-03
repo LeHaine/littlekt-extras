@@ -23,8 +23,8 @@ open class FixedGame<SceneType : FixedScene>(context: Context, firstScene: Scene
     val input get() = context.input
     val stats get() = context.stats
     val resourcesVfs get() = context.resourcesVfs
-    val storageVfs get() = context.storageVfs
-    val vfs get() = context.vfs
+    val kvStorage get() = context.kvStorage
+    val vfs get() = context.applicationVfs
     val clipboard get() = context.clipboard
 
     /**
