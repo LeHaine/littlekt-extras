@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.plugin.KotlinJsCompilerType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
@@ -12,9 +13,8 @@ plugins {
 kotlin {
     applyDefaultHierarchyTemplate()
     jvm {
-        compilations.all {
-            kotlinOptions.jvmTarget = "21"
-            compileJavaTaskProvider?.get()?.options?.compilerArgs?.add("--enable-preview")
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_22
         }
         testRuns["test"].executionTask.configure {
             useJUnit()
@@ -36,8 +36,8 @@ kotlin {
             KotlinPlatformType.js
         )
 
-        compilations.all {
-            kotlinOptions.sourceMap = true
+        compilerOptions {
+            sourceMap = true
         }
     }
 
