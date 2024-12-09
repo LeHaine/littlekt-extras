@@ -14,7 +14,7 @@ kotlin {
     applyDefaultHierarchyTemplate()
     jvm {
         compilerOptions {
-            jvmTarget = JvmTarget.JVM_22
+            jvmTarget = JvmTarget.JVM_21
         }
         testRuns["test"].executionTask.configure {
             useJUnit()
