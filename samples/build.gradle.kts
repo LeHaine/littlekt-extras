@@ -12,7 +12,7 @@ repositories {
 }
 
 kotlin {
-    tasks.withType<JavaExec> { jvmArgs("--enable-preview", "--enable-native-access=ALL-UNNAMED") }
+    tasks.withType<JavaExec> { jvmArgs("--enable-native-access=ALL-UNNAMED") }
     jvm {
         compilations {
             val main by getting
@@ -61,7 +61,7 @@ kotlin {
             }
         }
         compilations.all {
-            kotlinOptions.jvmTarget = "21"
+            kotlinOptions.jvmTarget = "22"
         }
         testRuns["test"].executionTask.configure {
             useJUnit()
