@@ -15,17 +15,17 @@ import kotlin.math.ceil
  * @date 3/9/2023
  */
 class GridMoveSystem(
-    private val gridCollisionPool: Pool<GridCollisionResultComponent>? = null,
+    private val gridCollisionPool: Pool<GridCollisionResult>? = null,
     interval: Interval = Fixed(1 / 30f)
-) : IteratingSystem(family = family { all(MoveComponent, GridComponent) }, interval = interval) {
+) : IteratingSystem(family = family { all(Move, Grid) }, interval = interval) {
 
     override fun onTickEntity(entity: Entity) {
-        val move = entity[MoveComponent]
-        val grid = entity[GridComponent]
+        val move = entity[Move]
+        val grid = entity[Grid]
 
-        val gravity = entity.getOrNull(GravityComponent)
-        val collision = entity.getOrNull(GridCollisionComponent)
-        val resolver = if (collision != null) entity.getOrNull(GridCollisionResolverComponent) else null
+        val gravity = entity.getOrNull(Gravity)
+        val collision = entity.getOrNull(GridCollision)
+        val resolver = if (collision != null) entity.getOrNull(GridCollisionResolver) else null
 
         grid.lastPx = grid.attachX
         grid.lastPy = grid.attachY
@@ -36,7 +36,7 @@ class GridMoveSystem(
         }
 
         /**
-         * Any movement greater than [GridComponent.maxGridMovementPercent] will increase the number of steps here.
+         * Any movement greater than [Grid.maxGridMovementPercent] will increase the number of steps here.
          * The steps will break down the movement into smaller iterators to avoid jumping over grid collisions
          */
         val steps = ceil(abs(move.velocityX) + abs(move.velocityY) / grid.maxGridMovementPercent)
@@ -74,7 +74,7 @@ class GridMoveSystem(
                             if (gridCollisionPool != null) {
                                 entity.configure {
                                     it += gridCollisionPool.alloc().apply {
-                                        axes = GridCollisionResultComponent.Axes.X
+                                        axes = GridCollisionResult.Axes.X
                                         dir = result
                                     }
                                 }
@@ -123,7 +123,7 @@ class GridMoveSystem(
                             if (gridCollisionPool != null) {
                                 entity.configure {
                                     it += gridCollisionPool.alloc().apply {
-                                        axes = GridCollisionResultComponent.Axes.Y
+                                        axes = GridCollisionResult.Axes.Y
                                         dir = result
                                     }
                                 }
@@ -169,7 +169,7 @@ class GridMoveSystem(
             if (gridCollisionPool != null) {
                 entity.configure {
                     it += gridCollisionPool.alloc().apply {
-                        axes = GridCollisionResultComponent.Axes.Z
+                        axes = GridCollisionResult.Axes.Z
                         dir = 0
                     }
                 }
@@ -183,6 +183,6 @@ class GridMoveSystem(
     }
 
     override fun onAlphaEntity(entity: Entity, alpha: Float) {
-        entity[GridComponent].interpolationAlpha = alpha
+        entity[Grid].interpolationAlpha = alpha
     }
 }

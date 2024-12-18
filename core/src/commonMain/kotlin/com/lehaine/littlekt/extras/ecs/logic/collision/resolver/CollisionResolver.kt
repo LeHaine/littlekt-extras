@@ -1,8 +1,8 @@
 package com.lehaine.littlekt.extras.ecs.logic.collision.resolver
 
-import com.lehaine.littlekt.extras.ecs.component.GridCollisionComponent
-import com.lehaine.littlekt.extras.ecs.component.GridComponent
-import com.lehaine.littlekt.extras.ecs.component.MoveComponent
+import com.lehaine.littlekt.extras.ecs.component.GridCollision
+import com.lehaine.littlekt.extras.ecs.component.Grid
+import com.lehaine.littlekt.extras.ecs.component.Move
 
 /**
  * @author Colton Daily
@@ -11,16 +11,16 @@ import com.lehaine.littlekt.extras.ecs.component.MoveComponent
 abstract class CollisionResolver {
 
     open fun resolveXCollision(
-        grid: GridComponent,
-        move: MoveComponent,
-        collision: GridCollisionComponent,
+        grid: Grid,
+        move: Move,
+        collision: GridCollision,
         dir: Int
     ) = Unit
 
     open fun resolveYCollision(
-        grid: GridComponent,
-        move: MoveComponent,
-        collision: GridCollisionComponent,
+        grid: Grid,
+        move: Move,
+        collision: GridCollision,
         dir: Int
     ) = Unit
 }

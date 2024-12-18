@@ -3,9 +3,9 @@ package com.lehaine.littlekt.extras.ecs.system
 import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.IteratingSystem
 import com.github.quillraven.fleks.World.Companion.family
-import com.lehaine.littlekt.extras.ecs.component.GridComponent
-import com.lehaine.littlekt.extras.ecs.component.RenderBoundsComponent
-import com.lehaine.littlekt.extras.ecs.component.SpriteComponent
+import com.lehaine.littlekt.extras.ecs.component.Grid
+import com.lehaine.littlekt.extras.ecs.component.RenderBounds
+import com.lehaine.littlekt.extras.ecs.component.Sprite
 import com.littlekt.math.Mat3
 import com.littlekt.math.MutableVec2f
 import com.littlekt.math.Rect
@@ -19,7 +19,7 @@ import com.littlekt.math.ife
  * @date 3/9/2023
  */
 class SpriteRenderBoundsCalculationSystem :
-    IteratingSystem(family { all(GridComponent, SpriteComponent, RenderBoundsComponent) }) {
+    IteratingSystem(family { all(Grid, Sprite, RenderBounds) }) {
 
     private val _bounds = Rect()
     private val transMat = Mat3()
@@ -31,9 +31,9 @@ class SpriteRenderBoundsCalculationSystem :
     private val bottomRight = MutableVec2f()
 
     override fun onTickEntity(entity: Entity) {
-        val grid = entity[GridComponent]
-        val sprite = entity[SpriteComponent]
-        val renderBounds = entity[RenderBoundsComponent]
+        val grid = entity[Grid]
+        val sprite = entity[Sprite]
+        val renderBounds = entity[RenderBounds]
 
         if (grid.dirty || sprite.dirty) {
             grid.dirty = false

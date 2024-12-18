@@ -1,6 +1,5 @@
 package com.lehaine.littlekt.extras.ecs.component
 
-import com.github.quillraven.fleks.Component
 import com.github.quillraven.fleks.ComponentType
 import com.lehaine.littlekt.extras.grid.entity.GridEntity
 import com.littlekt.math.castRay
@@ -18,8 +17,10 @@ import kotlin.time.Duration
  * @author Colton Daily
  * @date 3/9/2023
  */
-class GridComponent(var gridCellSize: Float, var width: Float = gridCellSize, var height: Float = gridCellSize) :
-    Component<GridComponent> {
+class Grid(
+    var gridCellSize: Float, var width: Float = gridCellSize, var height: Float = gridCellSize,
+    override val poolType: PoolType<Grid> = Grid
+) : PoolableComponent<Grid> {
     var anchorX: Float = 0.5f
         set(value) {
             if (field == value) return
@@ -181,20 +182,20 @@ class GridComponent(var gridCellSize: Float, var width: Float = gridCellSize, va
         onPositionManuallyChanged()
     }
 
-    fun dirTo(target: GridComponent) = dirTo(target.centerX)
+    fun dirTo(target: Grid) = dirTo(target.centerX)
 
     fun dirTo(targetX: Float) = if (targetX > centerX) 1 else -1
 
     fun distGridTo(tcx: Int, tcy: Int, txr: Float = 0.5f, tyr: Float = 0.5f) =
         dist(cx + xr, cy + yr, tcx + txr, tcy + tyr)
 
-    fun distGridTo(target: GridComponent) = distGridTo(target.cx, target.cy, target.xr, target.yr)
+    fun distGridTo(target: Grid) = distGridTo(target.cx, target.cy, target.xr, target.yr)
 
     fun distPxTo(x: Float, y: Float) = dist(this.x, this.y, x, y)
-    fun distPxTo(target: GridComponent) = distPxTo(target.x, target.y)
+    fun distPxTo(target: Grid) = distPxTo(target.x, target.y)
 
     fun angleTo(x: Float, y: Float) = atan2(y - this.y, x - this.x).radians
-    fun angleTo(target: GridComponent) = angleTo(target.centerX, target.centerY)
+    fun angleTo(target: Grid) = angleTo(target.centerX, target.centerY)
 
     fun onPositionManuallyChanged() {
         lastPx = attachX
@@ -208,7 +209,21 @@ class GridComponent(var gridCellSize: Float, var width: Float = gridCellSize, va
         _squashY += (1 - _squashY) * min(1f, restoreSpeed * dt.seconds)
     }
 
-    override fun type(): ComponentType<GridComponent> = GridComponent
+    override fun reset() {
+        toGridPosition(0, 0)
+        width = gridCellSize
+        height = gridCellSize
+        anchorX = 0.5f
+        anchorY = 0.5f
+        scaleX = 1f
+        scaleY = 1f
+        currentScaleX = 1f
+        currentScaleY = 1f
+    }
 
-    companion object : ComponentType<GridComponent>()
+    override fun type(): ComponentType<Grid> = Grid
+
+    companion object : ComponentType<Grid>(), PoolType<Grid> {
+        override val poolName: String = "gridPool"
+    }
 }

@@ -4,9 +4,8 @@ import com.github.quillraven.fleks.ComponentType
 import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.IteratingSystem
 import com.github.quillraven.fleks.World.Companion.family
-import com.lehaine.littlekt.extras.ecs.component.ParticlesComponent
+import com.lehaine.littlekt.extras.ecs.component.Particles
 import com.littlekt.graphics.g2d.Batch
-import com.littlekt.graphics.toFloatBits
 import com.littlekt.math.Rect
 import com.littlekt.util.datastructure.fastForEach
 
@@ -18,10 +17,10 @@ open class ParticlesRenderSystem(
     private val batch: Batch,
     private val viewBounds: Rect,
     vararg extraTypes: ComponentType<*> = emptyArray()
-) : IteratingSystem(family { all(ParticlesComponent, *extraTypes) }) {
+) : IteratingSystem(family { all(Particles, *extraTypes) }) {
 
     override fun onTickEntity(entity: Entity) {
-        val particlesComponent = entity[ParticlesComponent]
+        val particlesComponent = entity[Particles]
 
         with(particlesComponent) {
             if (particles.isNotEmpty()) {

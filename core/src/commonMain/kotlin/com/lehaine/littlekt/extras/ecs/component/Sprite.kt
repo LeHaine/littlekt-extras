@@ -1,8 +1,6 @@
 package com.lehaine.littlekt.extras.ecs.component
 
-import com.github.quillraven.fleks.Component
 import com.github.quillraven.fleks.ComponentType
-import com.lehaine.littlekt.extras.renderable.Sprite
 import com.littlekt.graphics.Color
 import com.littlekt.graphics.g2d.Batch
 import com.littlekt.graphics.g2d.TextureSlice
@@ -11,7 +9,9 @@ import com.littlekt.graphics.g2d.TextureSlice
  * @author Colton Daily
  * @date 3/9/2023
  */
-class SpriteComponent(slice: TextureSlice? = null) : Component<SpriteComponent> {
+class Sprite(
+    slice: TextureSlice? = null, override val poolType: PoolType<Sprite> = Sprite
+) : PoolableComponent<Sprite> {
     var layer: Int = 0
 
     var slice: TextureSlice? = slice
@@ -69,8 +69,22 @@ class SpriteComponent(slice: TextureSlice? = null) : Component<SpriteComponent> 
      */
     var color = Color.WHITE.toMutableColor()
 
-    override fun type(): ComponentType<SpriteComponent> = SpriteComponent
+    override fun reset() {
+        slice = null
+        layer = 0
+        overrideWidth = false
+        overrideHeight = false
+        overriddenWidth = 0f
+        overriddenHeight = 0f
+        flipX = false
+        flipY = false
+        color.set(Color.WHITE)
+    }
 
-    companion object : ComponentType<SpriteComponent>()
+    override fun type(): ComponentType<Sprite> = Sprite
+
+    companion object : ComponentType<Sprite>(), PoolType<Sprite> {
+        override val poolName: String = "spritePool"
+    }
 
 }

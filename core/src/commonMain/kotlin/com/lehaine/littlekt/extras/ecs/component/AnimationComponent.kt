@@ -1,6 +1,5 @@
 package com.lehaine.littlekt.extras.ecs.component
 
-import com.github.quillraven.fleks.Component
 import com.github.quillraven.fleks.ComponentType
 import com.littlekt.graphics.g2d.Animation
 import com.littlekt.graphics.g2d.AnimationPlayer
@@ -12,7 +11,8 @@ import kotlin.time.Duration.Companion.milliseconds
  * @author Colton Daily
  * @date 3/9/2023
  */
-class AnimationComponent : Component<AnimationComponent> {
+class AnimationComponent(override val poolType: PoolType<AnimationComponent> = AnimationComponent) :
+    PoolableComponent<AnimationComponent> {
     private val player = AnimationPlayer<TextureSlice>()
 
     val totalFramesPlayed: Int get() = player.totalFramesPlayed
@@ -55,7 +55,15 @@ class AnimationComponent : Component<AnimationComponent> {
 
     fun stop() = player.stop()
 
+    override fun reset() {
+        stop()
+        removeAllStates()
+    }
+
     override fun type(): ComponentType<AnimationComponent> = AnimationComponent
 
-    companion object : ComponentType<AnimationComponent>()
+    companion object : ComponentType<AnimationComponent>(), PoolType<AnimationComponent> {
+        override val poolName: String = "animationPool"
+    }
+
 }

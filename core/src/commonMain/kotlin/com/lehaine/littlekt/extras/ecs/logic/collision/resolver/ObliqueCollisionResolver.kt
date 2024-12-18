@@ -1,8 +1,8 @@
 package com.lehaine.littlekt.extras.ecs.logic.collision.resolver
 
-import com.lehaine.littlekt.extras.ecs.component.GridCollisionComponent
-import com.lehaine.littlekt.extras.ecs.component.GridComponent
-import com.lehaine.littlekt.extras.ecs.component.MoveComponent
+import com.lehaine.littlekt.extras.ecs.component.GridCollision
+import com.lehaine.littlekt.extras.ecs.component.Grid
+import com.lehaine.littlekt.extras.ecs.component.Move
 import com.lehaine.littlekt.extras.ecs.logic.collision.checker.CollisionChecker
 import com.lehaine.littlekt.extras.ecs.logic.collision.checker.ObliqueCollisionChecker
 import kotlin.math.floor
@@ -21,9 +21,9 @@ class ObliqueCollisionResolver : CollisionResolver() {
     var wallDeltaTopCollisionRatio: Float = 0.6f
 
     override fun resolveXCollision(
-        grid: GridComponent,
-        move: MoveComponent,
-        collision: GridCollisionComponent,
+        grid: Grid,
+        move: Move,
+        collision: GridCollision,
         dir:Int
     ) {
         val checker = collision.checker
@@ -106,9 +106,9 @@ class ObliqueCollisionResolver : CollisionResolver() {
     }
 
     override fun resolveYCollision(
-        grid: GridComponent,
-        move: MoveComponent,
-        collision: GridCollisionComponent,
+        grid: Grid,
+        move: Move,
+        collision: GridCollision,
         dir:Int
     ) {
         val checker = collision.checker

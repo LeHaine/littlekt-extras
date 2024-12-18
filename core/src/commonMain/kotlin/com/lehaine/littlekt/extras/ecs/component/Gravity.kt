@@ -7,7 +7,7 @@ import com.github.quillraven.fleks.ComponentType
  * @author Colton Daily
  * @date 3/9/2023
  */
-class GravityComponent : Component<GravityComponent> {
+class Gravity : Component<Gravity> {
     var gravityX: Float = 0f
     var gravityY: Float = 0f
     var gravityZ: Float = 0f
@@ -24,7 +24,7 @@ class GravityComponent : Component<GravityComponent> {
         enableGravityZ = enable
     }
 
-    override fun type(): ComponentType<GravityComponent> = GravityComponent
+    override fun type(): ComponentType<Gravity> = Gravity
 
     fun calculateDeltaXGravity(): Float {
         return if (enableGravityX) {
@@ -50,5 +50,5 @@ class GravityComponent : Component<GravityComponent> {
         }
     }
 
-    companion object : ComponentType<GravityComponent>()
+    companion object : ComponentType<Gravity>()
 }

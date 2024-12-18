@@ -10,7 +10,7 @@ import com.littlekt.math.geom.Angle
  * @author Colton Daily
  * @date 3/10/2023
  */
-class ParticlesComponent(val particles: MutableList<Particle> = mutableListOf()) : Component<ParticlesComponent> {
+class Particles(val particles: MutableList<Particle> = mutableListOf()) : Component<Particles> {
     var x: Float = 0f
     var y: Float = 0f
     var scaleX: Float = 0f
@@ -22,7 +22,7 @@ class ParticlesComponent(val particles: MutableList<Particle> = mutableListOf())
         particles += particle
     }
 
-    override fun type() = ParticlesComponent
+    override fun type() = Particles
 
-    companion object : ComponentType<ParticlesComponent>()
+    companion object : ComponentType<Particles>()
 }

@@ -8,10 +8,10 @@ import com.lehaine.littlekt.extras.ecs.logic.collision.checker.GroundChecker
  * @author Colton Daily
  * @date 3/11/2023
  */
-class PlatformerComponent(val groundChecker: GroundChecker) : Component<PlatformerComponent> {
+class Platformer(val groundChecker: GroundChecker) : Component<Platformer> {
     var onGround = true
 
-    override fun type() = PlatformerComponent
+    override fun type() = Platformer
 
-    companion object : ComponentType<PlatformerComponent>()
+    companion object : ComponentType<Platformer>()
 }

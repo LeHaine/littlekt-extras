@@ -9,9 +9,9 @@ import com.lehaine.littlekt.extras.ecs.logic.collision.resolver.NoCollisionResol
  * @author Colton Daily
  * @date 3/10/2023
  */
-class GridCollisionResolverComponent(var resolver: CollisionResolver = NoCollisionResolver) :
-    Component<GridCollisionResolverComponent> {
-    override fun type() = GridCollisionResolverComponent
+class GridCollisionResolver(var resolver: CollisionResolver = NoCollisionResolver) :
+    Component<GridCollisionResolver> {
+    override fun type() = GridCollisionResolver
 
-    companion object : ComponentType<GridCollisionResolverComponent>()
+    companion object : ComponentType<GridCollisionResolver>()
 }

@@ -3,7 +3,7 @@ package com.lehaine.littlekt.extras.ecs.system
 import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.IteratingSystem
 import com.github.quillraven.fleks.World
-import com.lehaine.littlekt.extras.ecs.component.GridCollisionResultComponent
+import com.lehaine.littlekt.extras.ecs.component.GridCollisionResult
 import com.littlekt.util.datastructure.Pool
 
 /**
@@ -11,21 +11,21 @@ import com.littlekt.util.datastructure.Pool
  * @date 3/10/2023
  */
 class GridCollisionCleanupSystem(
-    private val gridCollisionPool: Pool<GridCollisionResultComponent>,
+    private val gridCollisionPool: Pool<GridCollisionResult>,
 ) : IteratingSystem(family = World.family {
     any(
-        GridCollisionResultComponent.GridCollisionX,
-        GridCollisionResultComponent.GridCollisionY
+        GridCollisionResult.GridCollisionX,
+        GridCollisionResult.GridCollisionY
     )
 }) {
     override fun onTickEntity(entity: Entity) {
         entity.configure { ctx ->
-            entity.getOrNull(GridCollisionResultComponent.GridCollisionX)?.let {
-                ctx -= GridCollisionResultComponent.GridCollisionX
+            entity.getOrNull(GridCollisionResult.GridCollisionX)?.let {
+                ctx -= GridCollisionResult.GridCollisionX
                 gridCollisionPool.free(it)
             }
-            entity.getOrNull(GridCollisionResultComponent.GridCollisionY)?.let {
-                ctx -= GridCollisionResultComponent.GridCollisionY
+            entity.getOrNull(GridCollisionResult.GridCollisionY)?.let {
+                ctx -= GridCollisionResult.GridCollisionY
                 gridCollisionPool.free(it)
             }
         }
