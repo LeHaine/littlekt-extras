@@ -2,6 +2,7 @@ package com.lehaine.littlekt.extras.ecs.component
 
 import com.github.quillraven.fleks.Component
 import com.github.quillraven.fleks.Entity
+import com.github.quillraven.fleks.InjectableConfiguration
 import com.github.quillraven.fleks.World
 import com.littlekt.util.datastructure.Pool
 
@@ -38,6 +39,11 @@ inline fun <reified T> poolTypeOf(
     override val poolName: String = "${typeName}Pool"
 }
 
-fun <T : PoolableComponent<T>> T.createPool(preallocate: Int = 0, gen: (Int) -> T): Pool<T> {
-    return Pool(reset = { it.reset() }, preallocate, gen)
+fun <T : PoolableComponent<T>> InjectableConfiguration.addPool(
+    poolType: PoolType<T>,
+    preallocate: Int = 0,
+    gen: (Int) -> T
+) {
+    val pool = Pool(reset = { it.reset() }, preallocate, gen)
+    add(poolType.poolName, pool)
 }
