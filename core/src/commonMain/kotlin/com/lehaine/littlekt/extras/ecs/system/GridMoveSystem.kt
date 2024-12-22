@@ -6,7 +6,6 @@ import com.github.quillraven.fleks.Interval
 import com.github.quillraven.fleks.IteratingSystem
 import com.github.quillraven.fleks.World.Companion.family
 import com.lehaine.littlekt.extras.ecs.component.*
-import com.littlekt.util.datastructure.Pool
 import kotlin.math.abs
 import kotlin.math.ceil
 
@@ -15,7 +14,6 @@ import kotlin.math.ceil
  * @date 3/9/2023
  */
 class GridMoveSystem(
-    private val gridCollisionPool: Pool<GridCollisionResult>? = null,
     interval: Interval = Fixed(1 / 30f)
 ) : IteratingSystem(family = family { all(Move, Grid) }, interval = interval) {
 
@@ -71,14 +69,13 @@ class GridMoveSystem(
                         )
                         if (result != 0) {
                             resolver?.resolver?.resolveXCollision(grid, move, collision, result)
-                            if (gridCollisionPool != null) {
-                                entity.configure {
-                                    it += gridCollisionPool.alloc().apply {
-                                        axes = GridCollisionResult.Axes.X
-                                        dir = result
-                                    }
+                            entity.configure {
+                                it += GridCollisionResult.GridCollisionXPool.alloc(world).apply {
+                                    axes = GridCollisionResult.Axes.X
+                                    dir = result
                                 }
                             }
+
                         }
                     }
                 }
@@ -120,12 +117,10 @@ class GridMoveSystem(
                         )
                         if (result != 0) {
                             resolver?.resolver?.resolveYCollision(grid, move, collision, result)
-                            if (gridCollisionPool != null) {
-                                entity.configure {
-                                    it += gridCollisionPool.alloc().apply {
-                                        axes = GridCollisionResult.Axes.Y
-                                        dir = result
-                                    }
+                            entity.configure {
+                                it += GridCollisionResult.GridCollisionYPool.alloc(world).apply {
+                                    axes = GridCollisionResult.Axes.Y
+                                    dir = result
                                 }
                             }
                         }
@@ -166,14 +161,13 @@ class GridMoveSystem(
             if (abs(move.velocityZ) <= 0.06f) {
                 move.velocityZ = 0f
             }
-            if (gridCollisionPool != null) {
-                entity.configure {
-                    it += gridCollisionPool.alloc().apply {
-                        axes = GridCollisionResult.Axes.Z
-                        dir = 0
-                    }
+            entity.configure {
+                it += GridCollisionResult.GridCollisionZPool.alloc(world).apply {
+                    axes = GridCollisionResult.Axes.Z
+                    dir = 0
                 }
             }
+
         }
 
         move.velocityZ *= move.frictionZ

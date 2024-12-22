@@ -19,9 +19,9 @@ open class GridCollision(
     }
 
     companion object : ComponentType<GridCollision>() {
-        val EmptyCollisionCheckerPool = poolTypeOf<GridCollision>("EmptyCollisionCheckerPool")
-        val LevelCollisionCheckerPool = poolTypeOf<GridCollision>("LevelCollisionCheckerPool")
-        val ObliqueCollisionCheckerPool = poolTypeOf<GridCollision>("ObliqueCollisionCheckerPool")
+        val EmptyCollisionCheckerPool = poolTypeOf<GridCollision>("EmptyCollisionChecker")
+        val LevelCollisionCheckerPool = poolTypeOf<GridCollision>("LevelCollisionChecker")
+        val ObliqueCollisionCheckerPool = poolTypeOf<GridCollision>("ObliqueCollisionChecker")
     }
 
 }

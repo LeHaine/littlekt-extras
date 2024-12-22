@@ -1,12 +1,11 @@
 package com.lehaine.littlekt.extras.ecs.component
 
 import com.github.quillraven.fleks.ComponentType
-import com.lehaine.littlekt.extras.grid.entity.GridEntity
-import com.littlekt.math.castRay
-import com.littlekt.math.dist
+import com.littlekt.math.*
 import com.littlekt.math.geom.Angle
+import com.littlekt.math.geom.cosine
 import com.littlekt.math.geom.radians
-import com.littlekt.math.interpolate
+import com.littlekt.math.geom.sine
 import com.littlekt.util.seconds
 import kotlin.math.atan2
 import kotlin.math.max
@@ -71,6 +70,14 @@ class Grid(
 
     val innerRadius get() = min(width, height) * 0.5f
     val outerRadius get() = max(width, height) * 0.5f
+
+    /**
+     * The radius for the smallest encompassing circle for the rectangle. Used for SAT Collision checks.
+     *
+     * **Note**: this does use the Pythagorean theorem but rather an approximation formula. In other words, it doesn't
+     * calculate a square root. This is good enough for our purposes.
+     */
+    val encompassingRadius get() = (7f / 8f * max(width, height) + min(width, height) * 0.5f) * 0.5f
 
     var interpolatePixelPosition: Boolean = true
 
@@ -168,10 +175,70 @@ class Grid(
     val bottom get() = attachY - anchorY * height
     val left get() = attachX - anchorX * width
 
+    private val _topLeft = MutableVec2f()
+
+    /**
+     * Calculates the top-left vertex of the entity, used for SAT collision checking.
+     */
+    val topLeft: Vec2f
+        get() = _topLeft.set(left, top).calculateVertex(centerX, centerY, rotation)
+
+    private val _bottomLeft = MutableVec2f()
+
+    /**
+     * Calculates the bottom-left vertex of the entity, used for SAT collision checking.
+     */
+    val bottomLeft: Vec2f
+        get() = _bottomLeft.set(left, bottom).calculateVertex(centerX, centerY, rotation)
+
+    private val _bottomRight = MutableVec2f()
+
+    /**
+     * Calculates the bottom-right vertex of the entity, used for SAT collision checking.
+     */
+    val bottomRight: Vec2f
+        get() = _bottomRight.set(right, bottom).calculateVertex(centerX, centerY, rotation)
+
+    private val _topRight = MutableVec2f()
+
+    /**
+     * Calculates the top-right vertex of the entity, used for SAT collision checking.
+     */
+    val topRight: Vec2f
+        get() = _topRight.set(right, top).calculateVertex(centerX, centerY, rotation)
+
+    private val _vertices = MutableList(4) { Vec2f(0f) }
+    val vertices: List<Vec2f>
+        get() {
+            _vertices[0] = topLeft
+            _vertices[1] = bottomLeft
+            _vertices[2] = bottomRight
+            _vertices[3] = topRight
+            return _vertices
+        }
+
+    private val _rect = MutableList(8) { 0f }
+    private val rect: List<Float>
+        get() {
+            _rect[0] = vertices[0].x
+            _rect[1] = vertices[0].y
+
+            _rect[2] = vertices[1].x
+            _rect[3] = vertices[1].y
+
+            _rect[4] = vertices[2].x
+            _rect[5] = vertices[2].y
+
+            _rect[6] = vertices[3].x
+            _rect[7] = vertices[3].y
+
+            return _rect
+        }
+
     fun castRayTo(tcx: Int, tcy: Int, canRayPass: (Int, Int) -> Boolean) =
         castRay(cx, cy, tcx, tcy, canRayPass)
 
-    fun castRayTo(target: GridEntity, canRayPass: (Int, Int) -> Boolean) =
+    fun castRayTo(target: Grid, canRayPass: (Int, Int) -> Boolean) =
         castRay(cx, cy, target.cx, target.cy, canRayPass)
 
     fun toGridPosition(cx: Int, cy: Int, xr: Float = 0.5f, yr: Float = 1f) {
@@ -219,6 +286,17 @@ class Grid(
         scaleY = 1f
         currentScaleX = 1f
         currentScaleY = 1f
+    }
+
+    private fun MutableVec2f.calculateVertex(cx: Float, cy: Float, angle: Angle): MutableVec2f {
+        val px = x - cx
+        val py = y - cy
+        val sin = angle.sine
+        val cos = angle.cosine
+        val nx = px * cos - py * sin
+        val ny = px * sin + py * cos
+        set(nx + cx, ny + cy)
+        return this
     }
 
     override fun type(): ComponentType<Grid> = Grid
