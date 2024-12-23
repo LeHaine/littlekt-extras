@@ -276,6 +276,99 @@ class Grid(
         _squashY += (1 - _squashY) * min(1f, restoreSpeed * dt.seconds)
     }
 
+    private fun Grid.performSAT(poly2: List<Vec2f>): Boolean {
+        val edges = tempVecList2
+        var i = 0
+        polyToEdges(vertices).forEach {
+            edges[i].set(it)
+            i++
+        }
+
+        polyToEdges(poly2).forEach {
+            edges[i].set(it)
+            i++
+        }
+        val axes = tempVecList3
+
+        repeat(edges.size) { index ->
+            axes[index].set(orthogonal(edges[index]))
+        }
+
+        for (axis in axes) {
+            val projection1 = tempVec2f2.set(project(vertices, axis))
+            val projection2 = tempVec2f3.set(project(poly2, axis))
+            if (!overlap(projection1, projection2)) {
+                return false
+            }
+        }
+
+        return true
+    }
+
+    private fun edgeVector(v1: Vec2f, v2: Vec2f): Vec2f = tempVec2f.set(v2).subtract(v1)
+
+    private fun polyToEdges(poly: List<Vec2f>): List<Vec2f> {
+        repeat(poly.size) { index ->
+            tempVecList[index].set(edgeVector(poly[index], poly[(index + 1) % poly.size]))
+        }
+        return tempVecList
+    }
+
+    private fun orthogonal(vec2f: Vec2f): Vec2f = tempVec2f.set(vec2f.y, -vec2f.x)
+
+    private fun project(poly: List<Vec2f>, axis: Vec2f): Vec2f {
+        repeat(poly.size) { index ->
+            tempFloatList[index] = poly[index].dot(axis)
+        }
+        return tempVec2f.set(tempFloatList.min(), tempFloatList.max())
+    }
+
+    private fun overlap(projection1: Vec2f, projection2: Vec2f) =
+        projection1.x <= projection2.y && projection2.x <= projection1.y
+
+    /**
+     * AABB check
+     */
+    fun isCollidingWith(from: Grid, useSat: Boolean = false): Boolean {
+        if (useSat) {
+            if (rotation != 0.radians || from.rotation != 0.radians) {
+                if (!isCollidingWithEncompassingCircle(from)) return false
+                return performSAT(from.vertices)
+            }
+        }
+
+        // normal rectangle overlap check
+        val lx = left
+        val lx2 = from.left
+        val rx = right
+        val rx2 = from.right
+
+        if (lx >= rx2 || lx2 >= rx) {
+            return false
+        }
+
+        val ly = bottom
+        val ry = top
+        val ly2 = from.bottom
+        val ry2 = from.top
+
+        return !(ly >= ry2 || ly2 >= ry)
+    }
+
+    fun isCollidingWithInnerCircle(from: Grid): Boolean =
+        isCollidingWithRadius(innerRadius, from, from.innerRadius)
+
+    fun isCollidingWithOuterCircle(from: Grid): Boolean =
+        isCollidingWithRadius(outerRadius, from, from.outerRadius)
+
+    fun isCollidingWithEncompassingCircle(from: Grid): Boolean =
+        isCollidingWithRadius(encompassingRadius, from, from.encompassingRadius)
+
+    fun isCollidingWithRadius(radius: Float, from: Grid, fromRadius: Float): Boolean {
+        val dist = radius + fromRadius
+        return distSqr(centerX, centerY, from.centerX, from.centerY) <= dist * dist
+    }
+
     override fun reset() {
         toGridPosition(0, 0)
         width = gridCellSize
@@ -303,5 +396,13 @@ class Grid(
 
     companion object : ComponentType<Grid>(), PoolType<Grid> {
         override val poolName: String = "gridPool"
+
+        private val tempVec2f = MutableVec2f()
+        private val tempVec2f2 = MutableVec2f()
+        private val tempVec2f3 = MutableVec2f()
+        private val tempVecList = MutableList(4) { MutableVec2f(0f) }
+        private val tempVecList2 = MutableList(8) { MutableVec2f(0f) }
+        private val tempVecList3 = MutableList(8) { MutableVec2f(0f) }
+        private val tempFloatList = MutableList(4) { 0f }
     }
 }
