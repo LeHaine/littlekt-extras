@@ -41,20 +41,29 @@ class GridEntityCollisionSystem(
     }
 
     private fun Entity.addAABBCollision(target: Grid) {
-        val aabbCollision = getOrNull(GridEntityCollisionResult.AABBCollision)
-            ?: GridEntityCollisionResult.AABBCollisionPool.alloc(world)
-        aabbCollision.collidingWith += target
+        configure {
+            val collision = getOrAdd(GridEntityCollisionResult.AABBCollision) {
+                GridEntityCollisionResult.AABBCollisionPool.alloc(world)
+            }
+            collision.collidingWith += target
+        }
     }
 
     private fun Entity.addOuterCollision(target: Grid) {
-        val aabbCollision = getOrNull(GridEntityCollisionResult.OuterCircleCollision)
-            ?: GridEntityCollisionResult.OuterCircleCollisionPool.alloc(world)
-        aabbCollision.collidingWith += target
+        configure {
+            val collision = getOrAdd(GridEntityCollisionResult.OuterCircleCollision) {
+                GridEntityCollisionResult.OuterCircleCollisionPool.alloc(world)
+            }
+            collision.collidingWith += target
+        }
     }
 
     private fun Entity.addInnerCollision(target: Grid) {
-        val aabbCollision = getOrNull(GridEntityCollisionResult.InnerCircleCollision)
-            ?: GridEntityCollisionResult.InnerCircleCollisionPool.alloc(world)
-        aabbCollision.collidingWith += target
+        configure {
+            val collision = getOrAdd(GridEntityCollisionResult.InnerCircleCollision) {
+                GridEntityCollisionResult.InnerCircleCollisionPool.alloc(world)
+            }
+            collision.collidingWith += target
+        }
     }
 }

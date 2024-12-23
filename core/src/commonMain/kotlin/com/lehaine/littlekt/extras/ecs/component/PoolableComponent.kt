@@ -1,9 +1,6 @@
 package com.lehaine.littlekt.extras.ecs.component
 
-import com.github.quillraven.fleks.Component
-import com.github.quillraven.fleks.Entity
-import com.github.quillraven.fleks.InjectableConfiguration
-import com.github.quillraven.fleks.World
+import com.github.quillraven.fleks.*
 import com.littlekt.util.datastructure.Pool
 
 /**
@@ -28,7 +25,11 @@ interface PoolType<T> {
     val poolName: String
 
     fun alloc(world: World): T {
-        val pool = world.inject<Pool<T>>(poolName)
+        val pool = try {
+            world.inject<Pool<T>>(poolName)
+        } catch (e: FleksNoSuchInjectableException) {
+            error("Attempting to allocate to pool '$poolName' without adding it to injectables! Ensure to call 'addPool' and specify ${this::class.qualifiedName} as the type.")
+        }
         return pool.alloc()
     }
 }
