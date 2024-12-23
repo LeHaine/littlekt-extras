@@ -32,8 +32,7 @@ class GridEntityCollisionSystem(
                 if (grid.isCollidingWithInnerCircle(targetGrid)) {
                     entity.addInnerCollision(targetGrid)
                     targetEntity.addInnerCollision(grid)
-                }
-                if (grid.isCollidingWith(targetGrid, useSat)) {
+                } else if (grid.isCollidingWith(targetGrid, useSat)) {
                     entity.addAABBCollision(targetGrid)
                     targetEntity.addAABBCollision(grid)
                 }
