@@ -87,10 +87,10 @@ private fun pixelSmoothShaderCode(device: Device) = shader {
                 let dU: f32 = 1.0 / textureSize.size.x;
                 let dV: f32 = 1.0 / textureSize.size.y;
                 
-                let c0: vec4f = textureSample(tex, sample, in.uv);
-                let c1: vec4f = textureSample(tex, sample, in.uv + vec2f(dU, 0));
-                let c2: vec4f = textureSample(tex, sample, in.uv + vec2f(0, dV));
-                let c3: vec4f = textureSample(tex, sample, in.uv + vec2f(dU, dV));
+                let c0: vec4f = textureSample(tex, sample, input.uv);
+                let c1: vec4f = textureSample(tex, sample, input.uv + vec2f(dU, 0));
+                let c2: vec4f = textureSample(tex, sample, input.uv + vec2f(0, dV));
+                let c3: vec4f = textureSample(tex, sample, input.uv + vec2f(dU, dV));
                 
                 let subU: f32 = sampleProperties.properties.x;
                 let subV: f32 = sampleProperties.properties.y;
@@ -102,7 +102,7 @@ private fun pixelSmoothShaderCode(device: Device) = shader {
                 
                 let bilinear: vec4f = c0 * w0 * w2 + c1 * w1 * w2 + c2 * w0 * w3 + c3 * w1 * w3;
                 var output: FragmentOutput;
-                output.color = bilinear * in.color;
+                output.color = bilinear * input.color;
                 return output;
             """.trimIndent()
         }
