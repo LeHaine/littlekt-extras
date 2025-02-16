@@ -1,6 +1,7 @@
 package com.lehaine.littlekt.extras.ecs.component
 
 import com.github.quillraven.fleks.ComponentType
+import com.github.quillraven.fleks.InjectableConfiguration
 import com.github.quillraven.fleks.componentTypeOf
 
 /**
@@ -36,5 +37,17 @@ class GridCollisionResult(
         val GridCollisionXPool = poolTypeOf<GridCollisionResult>("GridCollisionX")
         val GridCollisionYPool = poolTypeOf<GridCollisionResult>("GridCollisionY")
         val GridCollisionZPool = poolTypeOf<GridCollisionResult>("GridCollisionZ")
+
+        fun InjectableConfiguration.addGridCollisionResultPools() {
+            addPool(GridCollisionXPool) {
+                GridCollisionResult(Axes.X, 0)
+            }
+            addPool(GridCollisionYPool) {
+                GridCollisionResult(Axes.Y, 0)
+            }
+            addPool(GridCollisionZPool) {
+                GridCollisionResult(Axes.Z, 0)
+            }
+        }
     }
 }

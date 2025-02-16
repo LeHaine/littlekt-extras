@@ -2,6 +2,8 @@ package com.lehaine.littlekt.extras
 
 import com.github.quillraven.fleks.*
 import com.lehaine.littlekt.extras.ecs.component.*
+import com.lehaine.littlekt.extras.ecs.component.GridCollisionResult.Companion.addGridCollisionResultPools
+import com.lehaine.littlekt.extras.ecs.component.GridEntityCollisionResult.Companion.addGridEntityCollisionResultPools
 import com.lehaine.littlekt.extras.ecs.logic.collision.checker.CollisionChecker
 import com.lehaine.littlekt.extras.ecs.logic.collision.checker.GroundChecker
 import com.lehaine.littlekt.extras.ecs.logic.collision.resolver.CollisionResolver
@@ -22,7 +24,6 @@ import com.littlekt.input.Key
 import com.littlekt.log.Logger
 import com.littlekt.math.Rect
 import com.littlekt.util.calculateViewBounds
-import com.littlekt.util.datastructure.Pool
 import com.littlekt.util.seconds
 import com.littlekt.util.viewport.ExtendViewport
 
@@ -38,9 +39,12 @@ class ECSPlatformerTest(context: Context) : ContextListener(context) {
         val heroIdle = resourcesVfs["test/heroIdle0.png"].readTexture().slice()
         val batch = SpriteBatch(context.graphics.device, context.graphics, graphics.preferredFormat)
         val viewport = ExtendViewport(240, 135)
-        val gridCollisionPool = Pool { GridCollisionResultComponent(GridCollisionResultComponent.Axes.X, 0) }
 
         val world = configureWorld {
+            injectables {
+                addGridCollisionResultPools()
+                addGridEntityCollisionResultPools()
+            }
             systems {
                 add(PlatformerGroundSystem())
                 add(PlatformerGravitySystem())
@@ -48,8 +52,8 @@ class ECSPlatformerTest(context: Context) : ContextListener(context) {
                 add(PlayerMoveSystem())
                 add(PlayerInputSystem(context.input))
 
-                add(GridMoveSystem(gridCollisionPool))
-                add(GridCollisionCleanupSystem(gridCollisionPool))
+                add(GridMoveSystem())
+                add(GridCollisionCleanupSystem())
 
                 add(AnimationSystem())
                 add(SpriteRenderBoundsCalculationSystem())
@@ -57,18 +61,18 @@ class ECSPlatformerTest(context: Context) : ContextListener(context) {
             }
         }
         world.entity {
-            it += SpriteComponent(heroIdle)
-            it += RenderBoundsComponent()
-            it += GridComponent(gridCellSize).apply {
+            it += Sprite(heroIdle)
+            it += RenderBounds()
+            it += Grid(gridCellSize).apply {
                 anchorY = 0f
             }
-            it += GridCollisionComponent(SimpleCollisionChecker(5, 5))
-            it += GridCollisionResolverComponent(SimpleCollisionResolver(5, 5))
-            it += GravityComponent().apply {
+            it += GridCollision(SimpleCollisionChecker(5, 5))
+            it += GridCollisionResolver(SimpleCollisionResolver(5, 5))
+            it += Gravity().apply {
                 gravityY = -0.075f
             }
-            it += PlatformerComponent(SimpleGroundChecker())
-            it += MoveComponent(frictionX = 0.82f, frictionY = 0.82f)
+            it += Platformer(SimpleGroundChecker())
+            it += Move(frictionX = 0.82f, frictionY = 0.82f)
             it += PlayerInputComponent()
         }
 
@@ -139,8 +143,9 @@ class ECSPlatformerTest(context: Context) : ContextListener(context) {
     }
 
     private class SimpleCollisionResolver(val gridWidth: Int, val gridHeight: Int) : CollisionResolver() {
+
         override fun resolveXCollision(
-            grid: GridComponent, move: MoveComponent, collision: GridCollisionComponent, dir: Int
+            grid: Grid, move: Move, collision: GridCollision, dir: Int
         ) {
             if (dir == -1) {
                 grid.cx = 0
@@ -153,7 +158,7 @@ class ECSPlatformerTest(context: Context) : ContextListener(context) {
         }
 
         override fun resolveYCollision(
-            grid: GridComponent, move: MoveComponent, collision: GridCollisionComponent, dir: Int
+            grid: Grid, move: Move, collision: GridCollision, dir: Int
         ) {
             if (dir == -1) {
                 grid.cy = 0
@@ -178,7 +183,7 @@ class ECSPlatformerTest(context: Context) : ContextListener(context) {
         context: Context,
         private val batch: Batch,
         private val camera: Camera,
-    ) : IteratingSystem(World.family { all(GridComponent, SpriteComponent) }) {
+    ) : IteratingSystem(World.family { all(Grid, Sprite) }) {
 
         private val viewBounds = Rect()
         private val graphics = context.graphics
@@ -241,9 +246,9 @@ class ECSPlatformerTest(context: Context) : ContextListener(context) {
         }
 
         override fun onTickEntity(entity: Entity) {
-            val sprite = entity[SpriteComponent]
-            val grid = entity[GridComponent]
-            val renderBounds = entity.getOrNull(RenderBoundsComponent)
+            val sprite = entity[Sprite]
+            val grid = entity[Grid]
+            val renderBounds = entity.getOrNull(RenderBounds)
 
             val slice = sprite.slice
 
@@ -279,11 +284,11 @@ class ECSPlatformerTest(context: Context) : ContextListener(context) {
     }
 
     private class PlayerInputSystem(private val input: Input) :
-        IteratingSystem(World.family { all(PlayerInputComponent, MoveComponent) }) {
+        IteratingSystem(World.family { all(PlayerInputComponent, Move) }) {
 
         override fun onTickEntity(entity: Entity) {
             val playerInput = entity[PlayerInputComponent]
-            val move = entity[MoveComponent]
+            val move = entity[Move]
 
             playerInput.xMoveStrength = 0f
             playerInput.yMoveStrength = 0f
@@ -302,11 +307,11 @@ class ECSPlatformerTest(context: Context) : ContextListener(context) {
     }
 
     private class PlayerMoveSystem :
-        IteratingSystem(World.family { all(PlayerInputComponent, MoveComponent) }, interval = Fixed(1 / 30f)) {
+        IteratingSystem(World.family { all(PlayerInputComponent, Move) }, interval = Fixed(1 / 30f)) {
 
         override fun onTickEntity(entity: Entity) {
             val playerInput = entity[PlayerInputComponent]
-            val move = entity[MoveComponent]
+            val move = entity[Move]
 
             move.velocityX += playerInput.speed * playerInput.xMoveStrength
             move.velocityY += playerInput.speed * playerInput.yMoveStrength

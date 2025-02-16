@@ -1,130 +1,116 @@
 package com.lehaine.littlekt.extras.shader
 
 import com.littlekt.file.FloatBuffer
-import com.littlekt.graphics.Texture
-import com.littlekt.graphics.shader.SpriteShader
+import com.littlekt.graphics.shader.Shader
+import com.littlekt.graphics.shader.builder.ShaderBindingType
+import com.littlekt.graphics.shader.builder.ShaderStructParameterType
+import com.littlekt.graphics.shader.builder.shader
+import com.littlekt.graphics.shader.builder.shaderStruct
+import com.littlekt.graphics.util.BindingUsage
 import com.littlekt.graphics.webgpu.*
 import com.littlekt.util.align
 
-//
-//import com.littlekt.graphics.shader.FragmentShaderModel
-//import com.littlekt.graphics.shader.ShaderParameter
-//import com.littlekt.graphics.shader.VertexShaderModel
-//
-
-// lang=wgsl
-private val pixelSmoothVertexShaderWgslSrc: String =
-    """
-    struct CameraUniform {
-        view_proj: mat4x4<f32>
-    };
-    
-    struct TextureSize {
-        size: vec4<f32>
-    };
-    
-    struct SampleProperties {
-        properties: vec4<f32>
-    };
-    
-    @group(0) @binding(0)
-    var<uniform> camera: CameraUniform;
-    @group(0) @binding(1)
-    var<uniform> textureSize: TextureSize;
-    @group(0) @binding(2)
-    var<uniform> sampleProperties: SampleProperties;
-    
-    struct VertexOutput {
-        @location(0) color: vec4<f32>,
-        @location(1) uv: vec2<f32>,
-        @builtin(position) position: vec4<f32>,
-    };
-    
-    @vertex
-    fn vs_main(
-        @location(0) pos: vec3<f32>,
-        @location(1) color: vec4<f32>,
-        @location(2) uvs: vec2<f32>) -> VertexOutput {
-
-        var output: VertexOutput;
-        output.position = camera.view_proj * vec4<f32>(pos.x, pos.y, pos.z, 1);
-        output.color = color;
-        output.uv.x = uvs.x + sampleProperties.properties.z / textureSize.size.x;
-        output.uv.y = uvs.y - sampleProperties.properties.y / textureSize.size.y; 
-
-        return output;
-    }
-
-    @group(1) @binding(0)
-    var tex: texture_2d<f32>;
-    @group(1) @binding(1)
-    var sample: sampler;
-
-    @fragment
-    fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-        let dU: f32 = 1.0 / textureSize.size.x;
-        let dV: f32 = 1.0 / textureSize.size.y;
-        
-        let c0: vec4<f32> = textureSample(tex, sample, in.uv);
-        let c1: vec4<f32> = textureSample(tex, sample, in.uv + vec2<f32>(dU, 0));
-        let c2: vec4<f32> = textureSample(tex, sample, in.uv + vec2<f32>(0, dV));
-        let c3: vec4<f32> = textureSample(tex, sample, in.uv + vec2<f32>(dU, dV));
-        
-        let subU: f32 = sampleProperties.properties.x;
-        let subV: f32 = sampleProperties.properties.y;
-        
-        let w0: f32 = 1 - subU;
-        let w1: f32 = subU;
-        let w2: f32 = 1 - subV;
-        let w3: f32 = subV;
-        
-        let bilinear: vec4<f32> = c0 * w0 * w2 + c1 * w1 * w2 + c2 * w0 * w3 + c3 * w1 * w3;
-        return bilinear * in.color;
-    }
-""".trimIndent()
-
-class PixelSmoothCameraSpriteShader(device: Device, cameraDynamicSize: Int = 50) : SpriteShader(
-    device = device, src = pixelSmoothVertexShaderWgslSrc,
-    layout =
-    listOf(
-        BindGroupLayoutDescriptor(
-            listOf(
-                // camera
-                BindGroupLayoutEntry(
-                    0,
-                    ShaderStage.VERTEX,
-                    BufferBindingLayout(
-                        type = BufferBindingType.UNIFORM,
-                        hasDynamicOffset = true,
-                        minBindingSize =
-                        (Float.SIZE_BYTES * 16)
-                            .align(device.limits.minUniformBufferOffsetAlignment)
-                            .toLong()
-                    )
-                ),
-                // texture size
-                BindGroupLayoutEntry(
-                    1,
-                    ShaderStage.VERTEX or ShaderStage.FRAGMENT,
-                    BufferBindingLayout(type = BufferBindingType.UNIFORM)
-                ),
-
-                // sample properties
-                BindGroupLayoutEntry(
-                    2,
-                    ShaderStage.VERTEX or ShaderStage.FRAGMENT,
-                    BufferBindingLayout(type = BufferBindingType.UNIFORM)
-                ),
-            )
-        ),
-        BindGroupLayoutDescriptor(
-            listOf(
-                BindGroupLayoutEntry(0, ShaderStage.FRAGMENT, TextureBindingLayout()),
-                BindGroupLayoutEntry(1, ShaderStage.FRAGMENT, SamplerBindingLayout())
-            )
+private fun pixelSmoothShaderCode(device: Device) = shader {
+    val vertexInputStruct = shaderStruct("VertexInput") {
+        mapOf(
+            "pos" to ShaderStructParameterType.Location(0, ShaderStructParameterType.WgslType.vec3f),
+            "color" to ShaderStructParameterType.Location(1, ShaderStructParameterType.WgslType.vec4f),
+            "uvs" to ShaderStructParameterType.Location(2, ShaderStructParameterType.WgslType.vec2f),
         )
-    ),
-    cameraDynamicSize = cameraDynamicSize
+    }
+
+    val vertexOutputStruct = shaderStruct("VertexOutput") {
+        mapOf(
+            "color" to ShaderStructParameterType.Location(0, ShaderStructParameterType.WgslType.vec4f),
+            "uv" to ShaderStructParameterType.Location(1, ShaderStructParameterType.WgslType.vec2f),
+            "position" to ShaderStructParameterType.BuiltIn.Position(ShaderStructParameterType.WgslType.vec4f)
+        )
+    }
+
+    val fragmentOutputStruct = shaderStruct("FragmentOutput") {
+        mapOf("color" to ShaderStructParameterType.Location(0, ShaderStructParameterType.WgslType.vec4f))
+    }
+
+    val cameraStruct = shaderStruct("Camera") {
+        mapOf("view_proj" to ShaderStructParameterType.WgslType.mat4x4f)
+    }
+
+    val textureSizeStruct = shaderStruct("TextureSize") {
+        mapOf("size" to ShaderStructParameterType.WgslType.vec4f)
+    }
+
+    val samplePropertiesStruct = shaderStruct("SampleProperties") {
+        mapOf("properties" to ShaderStructParameterType.WgslType.vec4f)
+    }
+
+    include(vertexInputStruct)
+    include(vertexOutputStruct)
+    include(fragmentOutputStruct)
+    include(cameraStruct)
+    include(textureSizeStruct)
+    include(samplePropertiesStruct)
+
+    bindGroup(0, BindingUsage.CAMERA) {
+        bind(
+            0, "camera", cameraStruct, ShaderBindingType.Uniform,
+            hasDynamicOffset = true,
+            minBindingSize = (Float.SIZE_BYTES * 16)
+                .align(device.limits.minUniformBufferOffsetAlignment)
+                .toLong()
+        )
+        bind(1, "textureSize", textureSizeStruct, ShaderBindingType.Uniform)
+        bind(2, "sampleProperties", samplePropertiesStruct, ShaderBindingType.Uniform)
+    }
+
+    bindGroup(1, BindingUsage.TEXTURE) {
+        bindTexture2d(0, "tex")
+        bindSampler(1, "sample")
+    }
+
+    vertex {
+        main(vertexInputStruct, vertexOutputStruct) {
+            """
+                var output: VertexOutput;
+                output.position = camera.view_proj * vec4f(input.pos.x, input.pos.y, input.pos.z, 1);
+                output.color = input.color;
+                output.uv.x = input.uvs.x + sampleProperties.properties.z / textureSize.size.x;
+                output.uv.y = input.uvs.y - sampleProperties.properties.y / textureSize.size.y; 
+    
+                return output;
+            """.trimIndent()
+        }
+    }
+
+    fragment {
+        main(vertexOutputStruct, fragmentOutputStruct) {
+            """
+                let dU: f32 = 1.0 / textureSize.size.x;
+                let dV: f32 = 1.0 / textureSize.size.y;
+                
+                let c0: vec4f = textureSample(tex, sample, in.uv);
+                let c1: vec4f = textureSample(tex, sample, in.uv + vec2f>(dU, 0));
+                let c2: vec4f = textureSample(tex, sample, in.uv + vec2f>(0, dV));
+                let c3: vec4f = textureSample(tex, sample, in.uv + vec2f>(dU, dV));
+                
+                let subU: f32 = sampleProperties.properties.x;
+                let subV: f32 = sampleProperties.properties.y;
+                
+                let w0: f32 = 1 - subU;
+                let w1: f32 = subU;
+                let w2: f32 = 1 - subV;
+                let w3: f32 = subV;
+                
+                let bilinear: vec4f = c0 * w0 * w2 + c1 * w1 * w2 + c2 * w0 * w3 + c3 * w1 * w3;
+                var output: FragmentOutput;
+                output.color = bilinear * in.color;
+                return output;
+            """.trimIndent()
+        }
+    }
+}
+
+class PixelSmoothCameraSpriteShader(device: Device) : Shader(
+    device = device, pixelSmoothShaderCode(device)
 ) {
 
     private val textureSizesFloatBuffer = FloatBuffer(4)
@@ -144,32 +130,24 @@ class PixelSmoothCameraSpriteShader(device: Device, cameraDynamicSize: Int = 50)
     private val textureSizesUniformBufferBinding: BufferBinding = BufferBinding(textureSizesUniformBuffer)
     private val samplePropertiesUniformBufferBinding: BufferBinding = BufferBinding(samplePropertiesUniformBuffer)
 
-    override fun MutableList<BindGroup>.createBindGroupsWithTexture(texture: Texture, data: Map<String, Any>) {
-        add(
-            device.createBindGroup(
+    override fun createBindGroup(usage: BindingUsage, vararg args: IntoBindingResource): BindGroup? {
+        val index = bindGroupUsageToGroupIndex[usage] ?: return null
+        val layout = layouts[index] ?: return null
+        if (usage == BindingUsage.CAMERA) {
+            val bindings =
+                args.mapIndexed { argsIndex, resource -> BindGroupEntry(argsIndex, resource) }.toMutableList()
+                    .apply {
+                        add(BindGroupEntry(1, textureSizesUniformBufferBinding))
+                        add(BindGroupEntry(2, samplePropertiesUniformBufferBinding))
+                    }
+            return device.createBindGroup(
                 BindGroupDescriptor(
-                    layouts[0],
-                    listOf(
-                        BindGroupEntry(0, cameraUniformBufferBinding),
-                        BindGroupEntry(1, textureSizesUniformBufferBinding),
-                        BindGroupEntry(2, samplePropertiesUniformBufferBinding)
-                    )
+                    layout,
+                    bindings
                 )
             )
-        )
-        add(
-            device.createBindGroup(
-                BindGroupDescriptor(
-                    layouts[1],
-                    listOf(BindGroupEntry(0, texture.view), BindGroupEntry(1, texture.sampler))
-                )
-            )
-        )
-    }
-
-    override fun setBindGroups(encoder: RenderPassEncoder, bindGroups: List<BindGroup>, dynamicOffsets: List<Long>) {
-        encoder.setBindGroup(0, bindGroups[0], dynamicOffsets)
-        encoder.setBindGroup(1, bindGroups[1])
+        }
+        return super.createBindGroup(usage, *args)
     }
 
     fun updateTextureSize(x: Float, y: Float) {
