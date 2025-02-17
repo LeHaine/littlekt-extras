@@ -104,7 +104,7 @@ private fun pixelSmoothShaderCode(device: Device) = shader {
                 
                 let bilinear: vec4f = c0 * w0 * w2 + c1 * w1 * w2 + c2 * w0 * w3 + c3 * w1 * w3;
                 var output: FragmentOutput;
-                output.color = bilinear * input.color;
+                output.color = vec4(bilinear.xyz * input.color.rgb, input.color.a);
                 return output;
             """.trimIndent()
         }
