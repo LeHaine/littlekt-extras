@@ -4,6 +4,7 @@ import com.littlekt.Context
 import com.littlekt.graphics.Camera
 import com.littlekt.math.MutableVec2f
 import com.littlekt.math.nextPowerOfTwo
+import kotlin.math.ceil
 import kotlin.math.min
 
 /**
@@ -14,7 +15,8 @@ class PixelSmoothRenderTarget private constructor(
     val width: Int,
     val height: Int,
     val pxWidth: Int,
-    val pxHeight: Int
+    val pxHeight: Int,
+    val upscale: Int,
 ) {
     var ppu: Float = 1f
     val ppuInv: Float get() = 1f / ppu
@@ -54,11 +56,16 @@ class PixelSmoothRenderTarget private constructor(
             val pxWidth = w
             val pxHeight = h
 
+            val width = pxWidth.nextPowerOfTwo
+            val height = pxHeight.nextPowerOfTwo
+            val upscale = ceil(min(screenWidth / width.toFloat(), screenHeight / height.toFloat())).toInt()
+
             return PixelSmoothRenderTarget(
-                pxWidth.nextPowerOfTwo,
-                pxHeight.nextPowerOfTwo,
+                width,
+                height,
                 pxWidth,
-                pxHeight
+                pxHeight,
+                upscale
             )
         }
     }

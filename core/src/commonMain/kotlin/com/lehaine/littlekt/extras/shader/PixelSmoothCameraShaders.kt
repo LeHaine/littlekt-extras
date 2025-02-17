@@ -73,8 +73,9 @@ private fun pixelSmoothShaderCode(device: Device) = shader {
                 var output: VertexOutput;
                 output.position = camera.view_proj * vec4f(input.pos.x, input.pos.y, input.pos.z, 1);
                 output.color = input.color;
-                output.uv.x = input.uvs.x + sampleProperties.properties.z / textureSize.size.x;
-                output.uv.y = input.uvs.y - sampleProperties.properties.y / textureSize.size.y; 
+                let upscale = textureSize.size.z;
+                output.uv.x = input.uvs.x + (sampleProperties.properties.z / upscale) / textureSize.size.x;
+                output.uv.y = input.uvs.y - (sampleProperties.properties.w / upscale) / textureSize.size.y; 
     
                 return output;
             """.trimIndent()
@@ -84,8 +85,9 @@ private fun pixelSmoothShaderCode(device: Device) = shader {
     fragment {
         main(vertexOutputStruct, fragmentOutputStruct) {
             """
-                let dU: f32 = 1.0 / textureSize.size.x;
-                let dV: f32 = 1.0 / textureSize.size.y;
+                let upscale: f32 = textureSize.size.z;
+                let dU: f32 = (1.0 / upscale) / textureSize.size.x;
+                let dV: f32 = (1.0 / upscale) /  textureSize.size.y;
                 
                 let c0: vec4f = textureSample(tex, sample, input.uv);
                 let c1: vec4f = textureSample(tex, sample, input.uv + vec2f(dU, 0));
@@ -95,9 +97,9 @@ private fun pixelSmoothShaderCode(device: Device) = shader {
                 let subU: f32 = sampleProperties.properties.x;
                 let subV: f32 = sampleProperties.properties.y;
                 
-                let w0: f32 = 1 - subU;
+                let w0: f32 = 1.0 - subU;
                 let w1: f32 = subU;
-                let w2: f32 = 1 - subV;
+                let w2: f32 = 1.0 - subV;
                 let w3: f32 = subV;
                 
                 let bilinear: vec4f = c0 * w0 * w2 + c1 * w1 * w2 + c2 * w0 * w3 + c3 * w1 * w3;
@@ -150,11 +152,11 @@ class PixelSmoothCameraSpriteShader(device: Device) : Shader(
         return super.createBindGroup(usage, *args)
     }
 
-    fun updateTextureSize(x: Float, y: Float) {
+    fun updateTextureSize(x: Float, y: Float, upscale:Float) {
         textureSizesFloatBuffer.clear()
         textureSizesFloatBuffer += x
         textureSizesFloatBuffer += y
-        textureSizesFloatBuffer += 0f
+        textureSizesFloatBuffer += upscale
         textureSizesFloatBuffer += 0f
         device.queue.writeBuffer(
             textureSizesUniformBuffer,
@@ -162,12 +164,12 @@ class PixelSmoothCameraSpriteShader(device: Device) : Shader(
         )
     }
 
-    fun updateSampleProperties(x: Float, y: Float) {
+    fun updateSampleProperties(subpixelX: Float, subpixelY: Float, upscaleX: Float, upscaleY: Float) {
         samplePropertiesFloatBuffer.clear()
-        samplePropertiesFloatBuffer += 0f
-        samplePropertiesFloatBuffer += 0f
-        samplePropertiesFloatBuffer += x
-        samplePropertiesFloatBuffer += y
+        samplePropertiesFloatBuffer += subpixelX
+        samplePropertiesFloatBuffer += subpixelY
+        samplePropertiesFloatBuffer += upscaleX
+        samplePropertiesFloatBuffer += upscaleY
         device.queue.writeBuffer(
             samplePropertiesUniformBuffer,
             samplePropertiesFloatBuffer
