@@ -10,7 +10,7 @@ Normally using the latest SNAPSHOT build instead of the latest stable.
   both [OOP](/core/src/commonMain/kotlin/com/lehaine/littlekt/extras/grid/entity)
   and [ECS](/core/src/commonMain/kotlin/com/lehaine/littlekt/extras/ecs).
 * Graphics related rendering classes: **Sprite**, **AnimatedSprite**, **ParticleBatch**.
-* ECS graphics related rendering components and systems: **SpriteComponent**, **RenderBoundsComponents**,
+* ECS graphics related rendering components and systems: **Sprite**, **RenderBounds**,
   **AnimationComponent**.
 * Pixel smooth camera, frame buffer, and shader related classes to allow for smooth tilemaps rendering at low
   resolutions.
