@@ -58,7 +58,7 @@ class PixelSmoothRenderTarget private constructor(
 
             val width = pxWidth.nextPowerOfTwo
             val height = pxHeight.nextPowerOfTwo
-            val upscale = ceil(min(screenWidth / width.toFloat(), screenHeight / height.toFloat())).toInt()
+            val upscale = ceil(min(screenWidth / w.toFloat(), screenHeight / h.toFloat())).toInt()
 
             return PixelSmoothRenderTarget(
                 width,
