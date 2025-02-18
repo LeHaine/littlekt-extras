@@ -1,15 +1,12 @@
 package com.lehaine.littlekt.extras.shader
 
 import com.littlekt.file.FloatBuffer
-import com.littlekt.graphics.Color
-import com.littlekt.graphics.Pixmap
-import com.littlekt.graphics.PixmapTexture
+import com.littlekt.graphics.*
 import com.littlekt.graphics.shader.Shader
 import com.littlekt.graphics.shader.builder.ShaderBindingType
 import com.littlekt.graphics.shader.builder.ShaderStructParameterType
 import com.littlekt.graphics.shader.builder.shader
 import com.littlekt.graphics.shader.builder.shaderStruct
-import com.littlekt.graphics.toAbgr888
 import com.littlekt.graphics.util.BindingUsage
 import com.littlekt.graphics.webgpu.*
 import com.littlekt.math.Vec2f
@@ -131,35 +128,25 @@ private fun shaderCode(device: Device) = shader {
 
 class CrtShader(
     device: Device,
-    preferredFormat: TextureFormat,
-    var scanlineSize: Int = 2,
-    var scanlineColor: Color = Color.WHITE,
+    val preferredFormat: TextureFormat,
+    scanlineSize: Int = 2,
+    val scanlineColor: Color = Color.WHITE,
     var vignette: Float = 0.5f,
     var curvature: Vec2f = Vec2f(0.5f, 0.5f),
     var scanlineAlpha: Float = 1f
 ) : Shader(
     device = device, shaderCode(device)
 ) {
-    private var pixmap = Pixmap(scanlineSize, scanlineSize)
-
-    init {
-        val gray = Color.BLACK.toAbgr888()//fromHex("#FF808080").toAbgr888()
-        for (y in 0..pixmap.height) {
-            for (x in 0..pixmap.width) {
-                pixmap.set(x, y, gray)
+    var scanlineSize: Int = scanlineSize
+        set(value) {
+            if (field != value) {
+                field = value
+                scanlineTexture.release()
+                scanlineTexture = createPixmapTexture()
             }
         }
-        for (x in 0..pixmap.width) {
-            pixmap.set(x, 0, scanlineColor.toAbgr888())
-        }
-    }
 
-    private val scanlineTexture = PixmapTexture(
-        device,
-        preferredFormat,
-        pixmap,
-        samplerDescriptor = SamplerDescriptor(addressModeU = AddressMode.REPEAT, addressModeV = AddressMode.REPEAT)
-    )
+    private var scanlineTexture = createPixmapTexture()
 
     private val scanlinePropertiesFloatBuffer = FloatBuffer(8)
 
@@ -172,6 +159,25 @@ class CrtShader(
 
     private val scanlineTextureBindGroup = createBindGroup(bindingUsage, scanlineTexture.view, scanlineTexture.sampler)
         ?: error("Unable to create Scanline bind group!")
+
+    private fun createPixmapTexture(): Texture {
+        val pixmap = Pixmap(scanlineSize, scanlineSize)
+        val gray = Color.fromHex("#FF808080").toAbgr888()
+        for (y in 0..pixmap.height) {
+            for (x in 0..pixmap.width) {
+                pixmap.set(x, y, gray)
+            }
+        }
+        for (x in 0..pixmap.width) {
+            pixmap.set(x, 0, scanlineColor.toAbgr888())
+        }
+        return PixmapTexture(
+            device,
+            preferredFormat,
+            pixmap,
+            samplerDescriptor = SamplerDescriptor(addressModeU = AddressMode.REPEAT, addressModeV = AddressMode.REPEAT)
+        )
+    }
 
     override fun createBindGroup(usage: BindingUsage, vararg args: IntoBindingResource): BindGroup? {
         val index = bindGroupUsageToGroupIndex[usage] ?: return null
