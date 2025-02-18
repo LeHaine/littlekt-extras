@@ -13,8 +13,8 @@ import com.littlekt.math.geom.Angle
 class Particles(val particles: MutableList<Particle> = mutableListOf()) : Component<Particles> {
     var x: Float = 0f
     var y: Float = 0f
-    var scaleX: Float = 0f
-    var scaleY: Float = 0f
+    var scaleX: Float = 1f
+    var scaleY: Float = 1f
     var rotation: Angle = Angle.ZERO
     var blendMode: BlendState = BlendState.NonPreMultiplied
 
