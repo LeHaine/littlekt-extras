@@ -6,6 +6,7 @@ import com.github.quillraven.fleks.Interval
 import com.github.quillraven.fleks.IteratingSystem
 import com.github.quillraven.fleks.World.Companion.family
 import com.lehaine.littlekt.extras.ecs.component.*
+import com.littlekt.math.isFuzzyZero
 import kotlin.math.abs
 import kotlin.math.ceil
 
@@ -140,12 +141,12 @@ class GridMoveSystem(
             }
         }
         move.velocityX *= move.frictionX
-        if (abs(move.velocityX) <= 0.0005f) {
+        if (move.velocityX.isFuzzyZero(0.0005f)) {
             move.velocityX = 0f
         }
 
         move.velocityY *= move.frictionY
-        if (abs(move.velocityY) <= 0.0005f) {
+        if (move.velocityY.isFuzzyZero(0.0005f)) {
             move.velocityY = 0f
         }
 
@@ -157,10 +158,7 @@ class GridMoveSystem(
 
         if (grid.zr < 0) {
             grid.zr = 0f
-            move.velocityZ = -move.velocityZ * 0.9f
-            if (abs(move.velocityZ) <= 0.06f) {
-                move.velocityZ = 0f
-            }
+            move.velocityZ = 0f
             entity.configure {
                 it += GridCollisionResult.GridCollisionZPool.alloc(world).apply {
                     axes = GridCollisionResult.Axes.Z
@@ -171,7 +169,7 @@ class GridMoveSystem(
         }
 
         move.velocityZ *= move.frictionZ
-        if (abs(move.velocityZ) <= 0.0005f) {
+        if (move.velocityZ.isFuzzyZero(0.0005f)) {
             move.velocityZ = 0f
         }
     }

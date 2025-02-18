@@ -1,13 +1,14 @@
 package com.lehaine.littlekt.extras.ecs.component
 
-import com.github.quillraven.fleks.Component
 import com.github.quillraven.fleks.ComponentType
 
 /**
  * @author Colton Daily
  * @date 3/9/2023
  */
-class Gravity : Component<Gravity> {
+class Gravity(
+    override val poolType: PoolType<Gravity> = Gravity
+) : PoolableComponent<Gravity> {
     var gravityX: Float = 0f
     var gravityY: Float = 0f
     var gravityZ: Float = 0f
@@ -22,6 +23,16 @@ class Gravity : Component<Gravity> {
         enableGravityX = enable
         enableGravityY = enable
         enableGravityZ = enable
+    }
+
+    override fun reset() {
+        gravityX = 0f
+        gravityY = 0f
+        gravityZ = 0f
+        gravityMultiplier = 1f
+        enableGravityX = true
+        enableGravityY = true
+        enableGravityZ = true
     }
 
     override fun type(): ComponentType<Gravity> = Gravity
@@ -50,5 +61,7 @@ class Gravity : Component<Gravity> {
         }
     }
 
-    companion object : ComponentType<Gravity>()
+    companion object : ComponentType<Gravity>(), PoolType<Gravity> {
+        override val poolName: String = "gravityPool"
+    }
 }
