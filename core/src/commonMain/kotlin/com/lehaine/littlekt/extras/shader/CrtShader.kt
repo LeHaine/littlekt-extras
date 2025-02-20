@@ -147,6 +147,12 @@ class CrtShader(
         }
 
     private var scanlineTexture = createPixmapTexture()
+        set(value) {
+            field = value
+            scanlineTextureBindGroup.release()
+            scanlineTextureBindGroup = createBindGroup(bindingUsage, scanlineTexture.view, scanlineTexture.sampler)
+                ?: error("Unable to create Scanline bind group!")
+        }
 
     private val scanlinePropertiesFloatBuffer = FloatBuffer(8)
 
@@ -157,7 +163,7 @@ class CrtShader(
     )
     private val scanlinePropertiesUniformBufferBinding: BufferBinding = BufferBinding(scanlinePropertiesUniformBuffer)
 
-    private val scanlineTextureBindGroup = createBindGroup(bindingUsage, scanlineTexture.view, scanlineTexture.sampler)
+    private var scanlineTextureBindGroup = createBindGroup(bindingUsage, scanlineTexture.view, scanlineTexture.sampler)
         ?: error("Unable to create Scanline bind group!")
 
     private fun createPixmapTexture(): Texture {
