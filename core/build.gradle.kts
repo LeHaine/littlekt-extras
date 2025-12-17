@@ -13,9 +13,7 @@ plugins {
 kotlin {
     applyDefaultHierarchyTemplate()
     jvm {
-        compilerOptions {
-            jvmTarget = JvmTarget.JVM_22
-        }
+        compilerOptions { jvmTarget = JvmTarget.JVM_24 }
         testRuns["test"].executionTask.configure {
             useJUnit()
         }

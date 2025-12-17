@@ -224,7 +224,7 @@ class CollisionTest(context: Context) : FixedTimeContextListener(context) {
     }
 }
 
-fun main() {
+suspend fun main() {
     createLittleKtApp {
         width = 960
         height = 540

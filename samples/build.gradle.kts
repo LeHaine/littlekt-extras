@@ -1,5 +1,6 @@
 import org.jetbrains.kotlin.gradle.plugin.KotlinJsCompilerType
 import org.apache.tools.ant.taskdefs.condition.Os
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
@@ -60,9 +61,7 @@ kotlin {
                 }
             }
         }
-        compilations.all {
-            kotlinOptions.jvmTarget = "22"
-        }
+        compilerOptions { jvmTarget = JvmTarget.JVM_24 }
         testRuns["test"].executionTask.configure {
             useJUnit()
         }
@@ -82,8 +81,8 @@ kotlin {
             KotlinPlatformType.js
         )
 
-        compilations.all {
-            kotlinOptions.sourceMap = true
+        compilerOptions {
+            sourceMap = true
         }
     }
 

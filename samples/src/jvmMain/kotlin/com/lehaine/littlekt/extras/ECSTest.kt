@@ -313,7 +313,7 @@ class ECSTest(context: Context) : ContextListener(context) {
     }
 }
 
-fun main() {
+suspend fun main() {
     createLittleKtApp {
         width = 960
         height = 540
