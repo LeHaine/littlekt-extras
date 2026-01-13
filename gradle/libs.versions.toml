@@ -2,7 +2,7 @@
 fleks = "2.12"
 kotlin = "2.3.0"
 kotlinx-coroutines = "1.10.2"
-littlekt = "0.12.0.fdc3dba-SNAPSHOT"
+littlekt = "0.12.0.ef1f3ae-SNAPSHOT"
 
 [libraries]
 fleks = { module = "io.github.quillraven.fleks:Fleks", version.ref = "fleks" }
