@@ -118,6 +118,9 @@ class Grid(
             onPositionManuallyChanged()
         }
 
+    private val _pxPosition = MutableVec2f()
+    val pxPosition: MutableVec2f get() = _pxPosition.set(x, y)
+
     var scaleX: Float = 1f
         set(value) {
             if (field == value) return
@@ -168,12 +171,17 @@ class Grid(
 
     val attachX get() = (cx + xr) * gridCellSize
     val attachY get() = (cy + yr - zr) * gridCellSize
-    val centerX get() = attachX + (0.5f - anchorX) * width
-    val centerY get() = attachY + (0.5f - anchorY) * height
-    val top get() = attachY + (1 - anchorY) * height
-    val right get() = attachX + (1 - anchorX) * width
-    val bottom get() = attachY - anchorY * height
-    val left get() = attachX - anchorX * width
+
+    private val _attach = MutableVec2f()
+    val attach get() = _attach.set(attachX, attachY)
+    val centerX get() = x + (0.5f - anchorX) * width
+    val centerY get() = y + (0.5f - anchorY) * height
+    private val _center = MutableVec2f()
+    val center get() = _center.set(centerX, centerY)
+    val top get() = y + (1 - anchorY) * height
+    val right get() = x + (1 - anchorX) * width
+    val bottom get() = y - anchorY * height
+    val left get() = x - anchorX * width
 
     private val _topLeft = MutableVec2f()
 
