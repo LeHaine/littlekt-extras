@@ -61,7 +61,7 @@ kotlin {
                 }
             }
         }
-        compilerOptions { jvmTarget = JvmTarget.JVM_24 }
+        compilerOptions { jvmTarget = JvmTarget.JVM_25 }
         testRuns["test"].executionTask.configure {
             useJUnit()
         }
