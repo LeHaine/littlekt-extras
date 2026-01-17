@@ -27,7 +27,7 @@ class ParticleSimulatorRenderable : Renderable2D() {
             batch.setBlendState(blendMode)
         }
         simulator.particles.fastForEach {
-            if (!it.visible || !it.alive) return@fastForEach
+            if (!it.visible || it.killed) return@fastForEach
 
             if (viewBounds.intersects(
                     it.x + x,
